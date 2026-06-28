@@ -1,0 +1,51 @@
+@import '@/styles/theme.scss';
+
+.dialog-form {
+  .dialog-form-content {
+    display: flex;
+    flex-wrap: wrap;
+
+    .el-form-item {
+      width: 50%;
+      margin-bottom: $space-lg;
+
+      &.is-required {
+        .el-form-item__label::before {
+          content: '*';
+          color: $error;
+          margin-right: 4px;
+        }
+      }
+      
+      &__label {
+        font-weight: 500;
+        color: $text-secondary;
+      }
+    }
+  }
+
+  .dialog-footer {
+    display: flex;
+    justify-content: center;
+    gap: $space-md;
+    padding-top: $space-md;
+    border-top: 1px solid $border-light;
+    
+    .el-button {
+      min-width: 100px;
+      padding: 10px 24px;
+      border-radius: $radius-md;
+      
+      &--primary {
+        background: $primary-gradient;
+        border: none;
+        box-shadow: $shadow-primary;
+        
+        &:hover {
+          background: linear-gradient(135deg, #{$primary-dark} 0%, #{$primary} 100%);
+          box-shadow: 0 6px 16px rgba(8, 151, 156, 0.35);
+        }
+      }
+    }
+  }
+}

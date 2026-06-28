@@ -1,0 +1,208 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.login-page.data-v-45258083 {
+  min-height: 100vh;
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  overflow: hidden;
+}
+.login-bg.data-v-45258083 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+.login-bg .circle.data-v-45258083 {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+.login-bg .circle.circle-1.data-v-45258083 {
+  width: 600rpx;
+  height: 600rpx;
+  top: -200rpx;
+  right: -200rpx;
+}
+.login-bg .circle.circle-2.data-v-45258083 {
+  width: 400rpx;
+  height: 400rpx;
+  bottom: 100rpx;
+  left: -150rpx;
+}
+.login-bg .circle.circle-3.data-v-45258083 {
+  width: 300rpx;
+  height: 300rpx;
+  bottom: 300rpx;
+  right: -100rpx;
+}
+.login-content.data-v-45258083 {
+  position: relative;
+  z-index: 1;
+  padding: 80rpx 60rpx;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.logo-section.data-v-45258083 {
+  text-align: center;
+  margin-top: 100rpx;
+  margin-bottom: 120rpx;
+}
+.logo-section .logo-box.data-v-45258083 {
+  width: 160rpx;
+  height: 160rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 40rpx;
+  margin: 0 auto 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10rpx);
+}
+.logo-section .logo-box .logo-icon.data-v-45258083 {
+  font-size: 80rpx;
+}
+.logo-section .app-name.data-v-45258083 {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 16rpx;
+}
+.logo-section .app-slogan.data-v-45258083 {
+  display: block;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+.login-section.data-v-45258083 {
+  margin-top: auto;
+  margin-bottom: 60rpx;
+}
+.login-section .wechat-btn.data-v-45258083 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  height: 100rpx;
+  background: #07c160;
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 50rpx;
+  border: none;
+  margin-bottom: 20rpx;
+}
+.login-section .wechat-btn.data-v-45258083::after {
+  border: none;
+}
+.login-section .wechat-btn .icon.data-v-45258083 {
+  font-size: 40rpx;
+}
+.login-section .wechat-btn.test-btn.data-v-45258083 {
+  background: #ff9800;
+  font-size: 28rpx;
+}
+.login-section .divider.data-v-45258083 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+.login-section .divider .line.data-v-45258083 {
+  width: 120rpx;
+  height: 2rpx;
+  background: rgba(255, 255, 255, 0.3);
+}
+.login-section .divider .text.data-v-45258083 {
+  margin: 0 30rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+.login-section .account-btn.data-v-45258083 {
+  height: 100rpx;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 50rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+}
+.login-section .account-btn.data-v-45258083::after {
+  border: none;
+}
+.agreement.data-v-45258083 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.agreement .text.data-v-45258083 {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-left: 8rpx;
+  line-height: 1.6;
+}
+.agreement .link.data-v-45258083 {
+  color: #fff;
+  text-decoration: underline;
+}
+.account-login-popup.data-v-45258083 {
+  width: 600rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx;
+}
+.account-login-popup .popup-header.data-v-45258083 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+.account-login-popup .popup-header .title.data-v-45258083 {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+}
+.account-login-popup .popup-header .close.data-v-45258083 {
+  font-size: 40rpx;
+  color: #999;
+  padding: 10rpx;
+}
+.account-login-popup .form .input-group.data-v-45258083 {
+  margin-bottom: 30rpx;
+}
+.account-login-popup .form .input-group .label.data-v-45258083 {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+.account-login-popup .form .input-group .input.data-v-45258083 {
+  height: 90rpx;
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+  font-size: 30rpx;
+}
+.account-login-popup .form .submit-btn.data-v-45258083 {
+  height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 45rpx;
+  margin-top: 40rpx;
+}
+.account-login-popup .form .submit-btn.data-v-45258083::after {
+  border: none;
+}

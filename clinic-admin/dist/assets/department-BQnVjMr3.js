@@ -1,0 +1,1 @@
+import{a7 as a,a8 as n,a4 as e}from"./index-CIHRmZEu.js";const s=t=>a("/admin/department/list",t),d=t=>e("/admin/department/create",t),p=t=>e("/admin/department/update",t),r=t=>n(`/admin/department/${t}`);export{d as c,r as d,s as g,p as u};

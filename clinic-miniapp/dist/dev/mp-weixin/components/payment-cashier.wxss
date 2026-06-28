@@ -1,0 +1,178 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.payment-cashier.data-v-9b61654f {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.payment-cashier .cashier-mask.data-v-9b61654f {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.payment-cashier .cashier-content.data-v-9b61654f {
+  position: relative;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp-9b61654f 0.3s ease;
+}
+@keyframes slideUp-9b61654f {
+from {
+    transform: translateY(100%);
+}
+to {
+    transform: translateY(0);
+}
+}
+.payment-cashier .cashier-header.data-v-9b61654f {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.payment-cashier .cashier-header .close-btn.data-v-9b61654f {
+  font-size: 36rpx;
+  color: #999;
+  padding: 10rpx;
+}
+.payment-cashier .cashier-header .title.data-v-9b61654f {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+.payment-cashier .cashier-header .placeholder.data-v-9b61654f {
+  width: 56rpx;
+}
+.payment-cashier .cashier-body.data-v-9b61654f {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40rpx 30rpx;
+}
+.payment-cashier .cashier-body .pay-amount.data-v-9b61654f {
+  text-align: center;
+  margin-bottom: 50rpx;
+}
+.payment-cashier .cashier-body .pay-amount .currency.data-v-9b61654f {
+  font-size: 40rpx;
+  color: #333;
+  font-weight: bold;
+}
+.payment-cashier .cashier-body .pay-amount .amount.data-v-9b61654f {
+  font-size: 80rpx;
+  color: #333;
+  font-weight: bold;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item.data-v-9b61654f {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item.active.data-v-9b61654f {
+  background: #f0f9f6;
+  border-color: #00b894;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item.data-v-9b61654f:active {
+  opacity: 0.8;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item .method-icon.data-v-9b61654f {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item .method-icon .icon-text.data-v-9b61654f {
+  font-size: 40rpx;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item .method-info.data-v-9b61654f {
+  flex: 1;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item .method-info .method-name.data-v-9b61654f {
+  display: block;
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 6rpx;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item .method-info .method-desc.data-v-9b61654f {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item .method-check.data-v-9b61654f {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  border: 2rpx solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item .method-check .check-icon.data-v-9b61654f {
+  font-size: 28rpx;
+  color: #00b894;
+  font-weight: bold;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item.active .method-check.data-v-9b61654f {
+  border-color: #00b894;
+  background: #00b894;
+}
+.payment-cashier .cashier-body .pay-methods .pay-method-item.active .method-check .check-icon.data-v-9b61654f {
+  color: #fff;
+}
+.payment-cashier .cashier-footer.data-v-9b61654f {
+  padding: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+.payment-cashier .cashier-footer .pay-btn.data-v-9b61654f {
+  width: 100%;
+  height: 90rpx;
+  line-height: 90rpx;
+  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 45rpx;
+  border: none;
+}
+.payment-cashier .cashier-footer .pay-btn.data-v-9b61654f::after {
+  border: none;
+}
+.payment-cashier .cashier-footer .pay-btn.data-v-9b61654f:disabled {
+  background: #ccc;
+}
+.payment-cashier .cashier-footer .pay-btn.data-v-9b61654f:active {
+  opacity: 0.9;
+}

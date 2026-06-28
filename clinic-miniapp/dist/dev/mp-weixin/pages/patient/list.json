@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "就诊人管理",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "empty-data": "../../components/empty-data"
+  }
+}

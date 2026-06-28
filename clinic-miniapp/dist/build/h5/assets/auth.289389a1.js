@@ -1,0 +1,1 @@
+import{r as a}from"./request.96ee46d6.js";const t=t=>a({url:"/auth/miniapp/login",method:"POST",data:t}),o=()=>a({url:"/auth/logout",method:"POST"}),s=t=>a({url:"/auth/sms/send",method:"POST",data:t}),u=t=>a({url:"/auth/phone/login",method:"POST",data:t});export{o as l,t as m,u as p,s};

@@ -1,0 +1,1 @@
+import{a7 as n,a4 as a}from"./index-CIHRmZEu.js";const i=e=>n("/admin/dental-image/list",e),l=e=>a("/admin/dental-image/create",e),s=(e,t)=>a("/admin/dental-image/delete",{id:e,clinicId:t}),d=e=>a("/admin/dental-image/link-teeth",e);export{l as c,s as d,i as g,d as l};

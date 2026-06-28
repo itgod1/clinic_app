@@ -1,0 +1,328 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.dept-select-page.data-v-993c260a {
+  min-height: 100vh;
+  background: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+}
+.page-header.data-v-993c260a {
+  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+  padding: 80rpx 30rpx 30rpx;
+}
+.page-header .header-content.data-v-993c260a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.page-header .nav-back.data-v-993c260a {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10rpx);
+}
+.page-header .nav-back.data-v-993c260a:active {
+  background: rgba(255, 255, 255, 0.35);
+}
+.page-header .nav-back .nav-back-icon.data-v-993c260a {
+  font-size: 32rpx;
+  color: #fff;
+  font-weight: bold;
+}
+.page-header .page-title.data-v-993c260a {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #fff;
+}
+.page-header .header-placeholder.data-v-993c260a {
+  width: 64rpx;
+}
+.clinic-card.data-v-993c260a {
+  margin: 20rpx 30rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx 30rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+.clinic-card .clinic-icon.data-v-993c260a {
+  width: 72rpx;
+  height: 72rpx;
+  background: linear-gradient(135deg, #e8f5f0 0%, #d4edda 100%);
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+.clinic-card .clinic-info.data-v-993c260a {
+  flex: 1;
+}
+.clinic-card .clinic-info .clinic-label.data-v-993c260a {
+  display: block;
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 4rpx;
+}
+.clinic-card .clinic-info .clinic-name.data-v-993c260a {
+  display: block;
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+.clinic-card .clinic-arrow.data-v-993c260a {
+  font-size: 36rpx;
+  color: #ccc;
+}
+.dept-container.data-v-993c260a {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  margin: 0 30rpx 30rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+.dept-sidebar.data-v-993c260a {
+  width: 200rpx;
+  background: #f8f9fa;
+  height: 100%;
+  border-radius: 24rpx 0 0 24rpx;
+}
+.dept-sidebar .dept-item.data-v-993c260a {
+  padding: 32rpx 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s;
+}
+.dept-sidebar .dept-item.active.data-v-993c260a {
+  background: #fff;
+}
+.dept-sidebar .dept-item.active.data-v-993c260a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6rpx;
+  height: 40rpx;
+  background: linear-gradient(180deg, #00b894 0%, #00cec9 100%);
+  border-radius: 0 4rpx 4rpx 0;
+}
+.dept-sidebar .dept-item.active .dept-icon.data-v-993c260a {
+  display: block;
+  color: #00b894;
+  font-size: 16rpx;
+  margin-right: 8rpx;
+}
+.dept-sidebar .dept-item.active .dept-name.data-v-993c260a {
+  color: #00b894;
+  font-weight: 600;
+}
+.dept-sidebar .dept-item .dept-icon.data-v-993c260a {
+  display: none;
+}
+.dept-sidebar .dept-item .dept-name.data-v-993c260a {
+  font-size: 28rpx;
+  color: #666;
+  text-align: center;
+}
+.doctor-list.data-v-993c260a {
+  flex: 1;
+  background: #fff;
+  height: 100%;
+  padding: 20rpx;
+  border-radius: 0 24rpx 24rpx 0;
+}
+.doctor-list .loading-state.data-v-993c260a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100rpx 0;
+}
+.doctor-list .loading-state .loading-spinner.data-v-993c260a {
+  width: 48rpx;
+  height: 48rpx;
+  border: 4rpx solid #f0f0f0;
+  border-top-color: #00b894;
+  border-radius: 50%;
+  animation: spin-993c260a 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+@keyframes spin-993c260a {
+to {
+    transform: rotate(360deg);
+}
+}
+.doctor-list .loading-state .loading-text.data-v-993c260a {
+  font-size: 26rpx;
+  color: #999;
+}
+.doctor-list .empty-state.data-v-993c260a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0;
+}
+.doctor-list .empty-state .empty-emoji.data-v-993c260a {
+  font-size: 100rpx;
+  margin-bottom: 20rpx;
+  opacity: 0.5;
+}
+.doctor-list .empty-state .empty-text.data-v-993c260a {
+  font-size: 30rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+.doctor-list .empty-state .empty-subtext.data-v-993c260a {
+  font-size: 24rpx;
+  color: #999;
+}
+.doctor-list .doctor-card.data-v-993c260a {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid #f0f0f0;
+  transition: all 0.3s;
+}
+.doctor-list .doctor-card.data-v-993c260a:active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+.doctor-list .doctor-card .doctor-main.data-v-993c260a {
+  display: flex;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.doctor-list .doctor-card .doctor-main .avatar-wrap.data-v-993c260a {
+  position: relative;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+.doctor-list .doctor-card .doctor-main .avatar-wrap .avatar.data-v-993c260a {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8f5f0 0%, #d4edda 100%);
+  border: 4rpx solid #fff;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+.doctor-list .doctor-card .doctor-main .avatar-wrap .status-badge.data-v-993c260a {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #00b894;
+  color: #fff;
+  font-size: 18rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+  border: 2rpx solid #fff;
+}
+.doctor-list .doctor-card .doctor-main .doctor-info.data-v-993c260a {
+  flex: 1;
+  min-width: 0;
+}
+.doctor-list .doctor-card .doctor-main .doctor-info .info-header.data-v-993c260a {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+.doctor-list .doctor-card .doctor-main .doctor-info .info-header .doctor-name.data-v-993c260a {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-right: 16rpx;
+}
+.doctor-list .doctor-card .doctor-main .doctor-info .info-header .doctor-title.data-v-993c260a {
+  font-size: 22rpx;
+  color: #00b894;
+  background: rgba(0, 184, 148, 0.1);
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+.doctor-list .doctor-card .doctor-main .doctor-info .doctor-tags.data-v-993c260a {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+}
+.doctor-list .doctor-card .doctor-main .doctor-info .doctor-tags .tag.data-v-993c260a {
+  font-size: 20rpx;
+  color: #666;
+  background: #f5f5f5;
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+}
+.doctor-list .doctor-card .doctor-main .doctor-info .doctor-intro.data-v-993c260a {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.doctor-list .doctor-card .doctor-footer.data-v-993c260a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.doctor-list .doctor-card .doctor-footer .fee-info.data-v-993c260a {
+  display: flex;
+  align-items: baseline;
+}
+.doctor-list .doctor-card .doctor-footer .fee-info .fee-label.data-v-993c260a {
+  font-size: 24rpx;
+  color: #999;
+  margin-right: 8rpx;
+}
+.doctor-list .doctor-card .doctor-footer .fee-info .fee-value.data-v-993c260a {
+  font-size: 36rpx;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+.doctor-list .doctor-card .doctor-footer .fee-info .fee-value.data-v-993c260a::before {
+  content: "¥";
+  font-size: 24rpx;
+}
+.doctor-list .doctor-card .doctor-footer .reg-btn.data-v-993c260a {
+  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+  color: #fff;
+  padding: 16rpx 36rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  box-shadow: 0 4rpx 16rpx rgba(0, 184, 148, 0.3);
+}
+.doctor-list .doctor-card .doctor-footer .reg-btn.disabled.data-v-993c260a {
+  background: #d9d9d9;
+  box-shadow: none;
+}
+.doctor-list .doctor-card .doctor-footer .reg-btn.data-v-993c260a:active {
+  opacity: 0.9;
+}
+.doctor-list .doctor-card .doctor-footer .reg-btn .btn-text.data-v-993c260a {
+  display: block;
+}

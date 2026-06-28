@@ -1,0 +1,62 @@
+# ==========================================
+# 开发环境配置 (Development)
+# ==========================================
+
+server:
+  port: 8080
+  address: 0.0.0.0
+
+spring:
+  # 开发环境数据库配置（本地MySQL）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/clinic_saas_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 050918
+
+  # Redis配置（开发环境可禁用）
+  ##redis:
+  ##  host: localhost
+  ##  port: 6379
+  ##  database: 0
+  ##  timeout: 3000ms
+  ##  lettuce:
+  ##    pool:
+  ##      max-active: 8
+  ##      max-wait: -1ms
+  ##      max-idle: 8
+  ##      min-idle: 0
+
+# 开发环境日志配置（详细日志）
+logging:
+  level:
+    com.clinic: debug
+    org.springframework.web: debug
+    org.mybatis: debug
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n'
+  file:
+    name: logs/clinic-api-dev.log
+    max-size: 10MB
+    max-history: 7
+
+# 微信小程序配置（测试环境）
+wechat:
+  miniapp:
+    appid: wx78b6683972d369dd
+    secret: 2fc30f079ae3024644c58d80f533169b
+
+# AI回访API配置（开发环境使用默认Key）
+ai:
+  api-key: sk-clinic-ai-2025-a1b2c3d4e5f6
+  webhook-secret: webhook-dev-secret
+
+# LangGraph AI回访服务配置（替代Dify）
+langgraph:
+  api-url: http://localhost:8000
+  api-key: sk-clinic-ai-2025-a1b2c3d4e5f6
+
+# 开发环境特定配置
+clinic:
+  env: dev
+  debug: true

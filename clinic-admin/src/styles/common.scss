@@ -1,0 +1,422 @@
+@import './theme.scss';
+
+// ============================================
+// 全局基础样式
+// ============================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: $font-family;
+  font-size: $font-size-base;
+  color: $text-primary;
+  background-color: $bg-light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+}
+
+.page-container {
+  padding: $space-lg;
+  min-height: calc(100vh - 60px);
+}
+
+// ============================================
+// 布局工具类
+// ============================================
+
+.flex {
+  display: flex;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// ============================================
+// 间距工具类
+// ============================================
+
+// margin
+.m-0 { margin: 0; }
+.m-xs { margin: $space-xs; }
+.m-sm { margin: $space-sm; }
+.m-md { margin: $space-md; }
+.m-lg { margin: $space-lg; }
+.m-xl { margin: $space-xl; }
+
+.mt-xs { margin-top: $space-xs; }
+.mt-sm { margin-top: $space-sm; }
+.mt-md { margin-top: $space-md; }
+.mt-lg { margin-top: $space-lg; }
+.mt-xl { margin-top: $space-xl; }
+
+.mb-xs { margin-bottom: $space-xs; }
+.mb-sm { margin-bottom: $space-sm; }
+.mb-md { margin-bottom: $space-md; }
+.mb-lg { margin-bottom: $space-lg; }
+.mb-xl { margin-bottom: $space-xl; }
+
+.ml-xs { margin-left: $space-xs; }
+.ml-sm { margin-left: $space-sm; }
+.ml-md { margin-left: $space-md; }
+.ml-lg { margin-left: $space-lg; }
+.ml-xl { margin-left: $space-xl; }
+
+.mr-xs { margin-right: $space-xs; }
+.mr-sm { margin-right: $space-sm; }
+.mr-md { margin-right: $space-md; }
+.mr-lg { margin-right: $space-lg; }
+.mr-xl { margin-right: $space-xl; }
+
+// padding
+.p-xs { padding: $space-xs; }
+.p-sm { padding: $space-sm; }
+.p-md { padding: $space-md; }
+.p-lg { padding: $space-lg; }
+.p-xl { padding: $space-xl; }
+
+// ============================================
+// 文字工具类
+// ============================================
+
+.text-primary { color: $primary; }
+.text-success { color: $success; }
+.text-warning { color: $warning; }
+.text-error { color: $error; }
+.text-info { color: $info; }
+.text-secondary { color: $text-secondary; }
+.text-tertiary { color: $text-tertiary; }
+.text-disabled { color: $text-disabled; }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.font-bold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+.font-normal { font-weight: 400; }
+
+.text-xs { font-size: $font-size-xs; }
+.text-sm { font-size: $font-size-sm; }
+.text-base { font-size: $font-size-base; }
+.text-md { font-size: $font-size-md; }
+.text-lg { font-size: $font-size-lg; }
+.text-xl { font-size: $font-size-xl; }
+
+// ============================================
+// 卡片样式
+// ============================================
+
+.card {
+  background: $bg-white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  padding: $space-lg;
+  transition: $transition-normal;
+  
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+  
+  &.card-hover {
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
+    }
+  }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $space-md;
+  padding-bottom: $space-md;
+  border-bottom: 1px solid $border-light;
+}
+
+.card-title {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+// ============================================
+// 统计卡片
+// ============================================
+
+.stat-card {
+  background: $bg-white;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  box-shadow: $shadow-sm;
+  transition: $transition-normal;
+  
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: $space-md;
+    
+    &.primary {
+      background: $primary-lighter;
+      color: $primary;
+    }
+    
+    &.success {
+      background: $success-light;
+      color: $success;
+    }
+    
+    &.warning {
+      background: $warning-light;
+      color: $warning;
+    }
+    
+    &.error {
+      background: $error-light;
+      color: $error;
+    }
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: $text-primary;
+    margin-bottom: $space-xs;
+  }
+  
+  .stat-label {
+    font-size: $font-size-sm;
+    color: $text-tertiary;
+    margin-bottom: $space-sm;
+  }
+  
+  .stat-trend {
+    font-size: $font-size-xs;
+    display: flex;
+    align-items: center;
+    gap: $space-xs;
+    
+    &.up {
+      color: $success;
+    }
+    
+    &.down {
+      color: $error;
+    }
+  }
+}
+
+// ============================================
+// 页面头部
+// ============================================
+
+.page-header {
+  background: $bg-white;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  margin-bottom: $space-lg;
+  box-shadow: $shadow-sm;
+  
+  .page-title {
+    font-size: $font-size-xl;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: $space-sm;
+  }
+  
+  .page-desc {
+    font-size: $font-size-sm;
+    color: $text-tertiary;
+  }
+}
+
+// ============================================
+// 搜索区域
+// ============================================
+
+.search-area {
+  background: $bg-white;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  margin-bottom: $space-lg;
+  box-shadow: $shadow-sm;
+}
+
+// ============================================
+// 表格操作区
+// ============================================
+
+.table-operations {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $space-md;
+  
+  .table-operations-left {
+    display: flex;
+    gap: $space-sm;
+    align-items: center;
+  }
+  
+  .table-operations-right {
+    display: flex;
+    gap: $space-sm;
+    align-items: center;
+  }
+}
+
+// ============================================
+// 状态标签样式
+// ============================================
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: $font-size-xs;
+  font-weight: 500;
+  
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  
+  &.success {
+    background: $success-light;
+    color: $success;
+    
+    &::before {
+      background: $success;
+    }
+  }
+  
+  &.warning {
+    background: $warning-light;
+    color: $warning;
+    
+    &::before {
+      background: $warning;
+    }
+  }
+  
+  &.error {
+    background: $error-light;
+    color: $error;
+    
+    &::before {
+      background: $error;
+    }
+  }
+  
+  &.info {
+    background: $primary-lighter;
+    color: $primary;
+    
+    &::before {
+      background: $primary;
+    }
+  }
+}
+
+// ============================================
+// 动画效果
+// ============================================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease;
+}
+
+// ============================================
+// 响应式工具
+// ============================================
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .hidden-sm {
+    display: none !important;
+  }
+  
+  .page-container {
+    padding: $space-md;
+  }
+}

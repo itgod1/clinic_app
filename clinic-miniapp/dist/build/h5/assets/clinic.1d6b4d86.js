@@ -1,0 +1,1 @@
+import{r as i}from"./request.96ee46d6.js";const a=a=>i({url:"/miniapp/clinics",method:"GET",params:a}),s=a=>i({url:`/miniapp/clinics/${a}`,method:"GET"}),m=a=>i({url:"/miniapp/departments",method:"GET",params:a}),p=a=>i({url:"/miniapp/clinic/switch",method:"POST",params:{clinicId:a}});export{a,m as b,s as g,p as s};

@@ -1,0 +1,109 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.patient-list-page.data-v-35cb59a8 {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+.patient-list.data-v-35cb59a8 {
+  height: calc(100vh - 140rpx);
+  padding: 20rpx 30rpx;
+}
+.patient-list .patient-card.data-v-35cb59a8 {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+.patient-list .patient-card .patient-main.data-v-35cb59a8 {
+  flex: 1;
+}
+.patient-list .patient-card .patient-main .patient-header.data-v-35cb59a8 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.patient-list .patient-card .patient-main .patient-header .name.data-v-35cb59a8 {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-right: 20rpx;
+}
+.patient-list .patient-card .patient-main .patient-header .tags.data-v-35cb59a8 {
+  display: flex;
+  gap: 12rpx;
+}
+.patient-list .patient-card .patient-main .patient-header .tags .tag.data-v-35cb59a8 {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+}
+.patient-list .patient-card .patient-main .patient-header .tags .tag.gender.male.data-v-35cb59a8 {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+.patient-list .patient-card .patient-main .patient-header .tags .tag.gender.female.data-v-35cb59a8 {
+  background: #fff0f6;
+  color: #eb2f96;
+}
+.patient-list .patient-card .patient-main .patient-header .tags .tag.age.data-v-35cb59a8 {
+  background: #f6ffed;
+  color: #52c41a;
+}
+.patient-list .patient-card .patient-main .patient-header .tags .tag.default.data-v-35cb59a8 {
+  background: #fff7e6;
+  color: #fa8c16;
+}
+.patient-list .patient-card .patient-main .patient-info .info-item.data-v-35cb59a8 {
+  display: block;
+  font-size: 26rpx;
+  margin-bottom: 8rpx;
+}
+.patient-list .patient-card .patient-main .patient-info .info-item.data-v-35cb59a8:last-child {
+  margin-bottom: 0;
+}
+.patient-list .patient-card .patient-main .patient-info .info-item .label.data-v-35cb59a8 {
+  color: #999;
+}
+.patient-list .patient-card .patient-main .patient-info .info-item .value.data-v-35cb59a8 {
+  color: #666;
+}
+.patient-list .patient-card .arrow.data-v-35cb59a8 {
+  font-size: 32rpx;
+  color: #ccc;
+}
+.footer.data-v-35cb59a8 {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+.footer .add-btn.data-v-35cb59a8 {
+  width: 100%;
+  height: 90rpx;
+  line-height: 90rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 45rpx;
+}
+.footer .add-btn.data-v-35cb59a8::after {
+  border: none;
+}

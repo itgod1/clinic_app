@@ -1,0 +1,93 @@
+@import '@/styles/theme.scss';
+
+.table-container {
+  background: transparent;
+  border-radius: $radius-lg;
+  width: 100%;
+
+  .full-width-table {
+    width: 100% !important;
+
+    .el-table__inner-wrapper {
+      width: 100%;
+    }
+
+    .el-table__body-wrapper {
+      width: 100%;
+    }
+
+    .el-table__body {
+      width: 100% !important;
+    }
+
+    .el-table__header {
+      width: 100% !important;
+    }
+  }
+
+  .table-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: $space-md;
+
+    .reload-btn {
+      margin-left: $space-sm;
+      
+      &:hover {
+        color: $primary;
+        background: $primary-lighter;
+      }
+    }
+  }
+
+  .table-pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: $space-lg;
+    padding-top: $space-md;
+    border-top: 1px solid $border-light;
+  }
+}
+
+.table-operate {
+  display: flex;
+  justify-content: center;
+  gap: $space-xs;
+
+  .el-button {
+    padding: 6px 12px;
+    border-radius: $radius-sm;
+    
+    & + .el-button {
+      margin-left: 0;
+    }
+    
+    &--primary.is-link {
+      color: $primary;
+      
+      &:hover {
+        color: $primary-dark;
+        background: $primary-lighter;
+      }
+    }
+    
+    &--danger.is-link {
+      color: $error;
+      
+      &:hover {
+        color: #cf1322;
+        background: $error-light;
+      }
+    }
+    
+    &--warning.is-link {
+      color: $warning;
+      
+      &:hover {
+        color: #d46b08;
+        background: $warning-light;
+      }
+    }
+  }
+}

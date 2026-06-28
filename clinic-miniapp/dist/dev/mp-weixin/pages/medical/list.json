@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "就诊记录",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "empty-data": "../../components/empty-data"
+  }
+}

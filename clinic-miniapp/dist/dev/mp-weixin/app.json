@@ -1,0 +1,72 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/index",
+    "pages/clinic/select",
+    "pages/doctor/list",
+    "pages/doctor/detail",
+    "pages/registration/list",
+    "pages/registration/dept-select",
+    "pages/registration/confirm",
+    "pages/registration/detail",
+    "pages/medical/list",
+    "pages/patient/list",
+    "pages/patient/edit",
+    "pages/mine/index",
+    "pages/mine/about",
+    "pages/payment/detail",
+    "pages/payment/outpatient",
+    "pages/ai/consult",
+    "pages/ai/return-visit"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "诊所预约",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#00b894",
+    "borderStyle": "white",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home.png"
+      },
+      {
+        "pagePath": "pages/doctor/list",
+        "text": "医生",
+        "iconPath": "static/tabbar/doctor.png",
+        "selectedIconPath": "static/tabbar/doctor.png"
+      },
+      {
+        "pagePath": "pages/registration/list",
+        "text": "挂号",
+        "iconPath": "static/tabbar/registration.png",
+        "selectedIconPath": "static/tabbar/registration.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/mine.png",
+        "selectedIconPath": "static/tabbar/mine.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "获取位置信息用于推荐附近诊所"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation",
+    "chooseLocation"
+  ],
+  "cloud": true,
+  "usingComponents": {}
+}

@@ -1,0 +1,386 @@
+@import './theme.scss';
+
+// ============================================
+// 页面通用样式 - 列表页、表单页
+// ============================================
+
+// 页面容器
+.page-wrapper {
+  min-height: calc(100vh - 118px);
+  
+  // 搜索区域
+  .search-section {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    padding: $space-lg;
+    margin-bottom: $space-lg;
+    box-shadow: $shadow-sm;
+    
+    .search-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $space-md;
+      align-items: flex-end;
+      
+      .el-form-item {
+        margin-bottom: 0;
+        
+        &__label {
+          font-weight: 500;
+          color: $text-secondary;
+        }
+      }
+      
+      .search-buttons {
+        display: flex;
+        gap: $space-sm;
+        margin-left: auto;
+      }
+    }
+  }
+  
+  // 表格区域
+  .table-section,
+  .table-card {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    padding: $space-lg;
+    box-shadow: $shadow-sm;
+    width: 100%;
+
+    // 确保 el-card body 占满
+    &.el-card {
+      .el-card__body {
+        width: 100%;
+        padding: $space-lg;
+      }
+    }
+    
+    // 表格操作栏
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $space-md;
+      
+      .toolbar-left {
+        display: flex;
+        gap: $space-sm;
+        align-items: center;
+        
+        .section-title {
+          font-size: $font-size-md;
+          font-weight: 600;
+          color: $text-primary;
+          margin-right: $space-md;
+          position: relative;
+          padding-left: 12px;
+          
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background: $primary-gradient;
+            border-radius: 2px;
+          }
+        }
+      }
+      
+      .toolbar-right {
+        display: flex;
+        gap: $space-sm;
+      }
+    }
+    
+    // 表格样式增强
+    .el-table {
+      border-radius: $radius-md;
+      overflow: hidden;
+      
+      &::before {
+        display: none;
+      }
+      
+      &__header {
+        th {
+          background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+          font-weight: 600;
+          color: $text-primary;
+          font-size: $font-size-sm;
+          padding: 14px 12px;
+          
+          .cell {
+            display: flex;
+            align-items: center;
+          }
+        }
+      }
+      
+      &__body {
+        td {
+          padding: 14px 12px;
+          color: $text-secondary;
+        }
+        
+        tr {
+          transition: background 0.2s;
+          
+          &:hover {
+            td {
+              background: $primary-lighter !important;
+            }
+          }
+        }
+      }
+      
+      // 操作按钮列
+      .operation-column {
+        .cell {
+          display: flex;
+          gap: $space-xs;
+          
+          .el-button {
+            padding: 6px 12px;
+            
+            &.is-text {
+              padding: 6px;
+            }
+          }
+        }
+      }
+    }
+    
+    // 分页
+    .pagination-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: $space-lg;
+      padding-top: $space-md;
+      border-top: 1px solid $border-light;
+    }
+  }
+}
+
+// ============================================
+// 详情/表单页样式
+// ============================================
+
+.form-page {
+  .form-section {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    padding: $space-lg;
+    margin-bottom: $space-lg;
+    box-shadow: $shadow-sm;
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: $space-lg;
+      padding-bottom: $space-md;
+      border-bottom: 1px solid $border-light;
+      
+      .section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: $radius-md;
+        background: $primary-lighter;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: $space-md;
+        color: $primary;
+        font-size: 18px;
+      }
+      
+      .section-title {
+        font-size: $font-size-lg;
+        font-weight: 600;
+        color: $text-primary;
+      }
+    }
+    
+    .el-form {
+      .el-form-item {
+        &__label {
+          font-weight: 500;
+          color: $text-secondary;
+        }
+        
+        &.is-required {
+          &__label::before {
+            color: $error;
+          }
+        }
+      }
+    }
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: center;
+    gap: $space-md;
+    padding: $space-lg 0;
+    
+    .el-button {
+      min-width: 120px;
+      padding: 12px 24px;
+      font-size: $font-size-base;
+    }
+  }
+}
+
+// ============================================
+// 详情页样式
+// ============================================
+
+.detail-page {
+  .detail-section {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    padding: $space-lg;
+    margin-bottom: $space-lg;
+    box-shadow: $shadow-sm;
+    
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $space-lg;
+      padding-bottom: $space-md;
+      border-bottom: 1px solid $border-light;
+      
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: $space-md;
+        
+        .back-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: $radius-md;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: $bg-light;
+          color: $text-secondary;
+          cursor: pointer;
+          transition: $transition-fast;
+          
+          &:hover {
+            background: $primary-lighter;
+            color: $primary;
+          }
+        }
+        
+        .title {
+          font-size: $font-size-xl;
+          font-weight: 600;
+          color: $text-primary;
+        }
+      }
+      
+      .header-right {
+        display: flex;
+        gap: $space-sm;
+      }
+    }
+    
+    .detail-content {
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: $space-lg;
+        
+        .info-item {
+          display: flex;
+          flex-direction: column;
+          gap: $space-xs;
+          
+          .info-label {
+            font-size: $font-size-sm;
+            color: $text-tertiary;
+          }
+          
+          .info-value {
+            font-size: $font-size-base;
+            color: $text-primary;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// 工作台专用样式
+// ============================================
+
+.dashboard-page {
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $space-lg;
+    margin-bottom: $space-lg;
+    
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $space-lg;
+    
+    @media (max-width: 1200px) {
+      grid-template-columns: 1fr;
+    }
+    
+    .dashboard-left,
+    .dashboard-right {
+      display: flex;
+      flex-direction: column;
+      gap: $space-lg;
+    }
+  }
+}
+
+// ============================================
+// 空状态样式
+// ============================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-xxl;
+  color: $text-tertiary;
+  
+  .empty-icon {
+    font-size: 64px;
+    color: $border;
+    margin-bottom: $space-md;
+  }
+  
+  .empty-text {
+    font-size: $font-size-base;
+    margin-bottom: $space-lg;
+  }
+  
+  .empty-action {
+    .el-button {
+      padding: 10px 24px;
+    }
+  }
+}

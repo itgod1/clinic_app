@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clinic.mapper.ReturnVisitPlanMapper">
+
+    <resultMap id="BaseResultMap" type="com.clinic.entity.ReturnVisitPlan">
+        <id column="id" property="id"/>
+        <result column="clinic_id" property="clinicId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="patient_name" property="patientName"/>
+        <result column="patient_phone" property="patientPhone"/>
+        <result column="registration_id" property="registrationId"/>
+        <result column="medical_record_id" property="medicalRecordId"/>
+        <result column="visit_item" property="visitItem"/>
+        <result column="plan_date" property="planDate"/>
+        <result column="plan_time" property="planTime"/>
+        <result column="visit_type" property="visitType"/>
+        <result column="content_template" property="contentTemplate"/>
+        <result column="assignee_id" property="assigneeId"/>
+        <result column="assignee_name" property="assigneeName"/>
+        <result column="status" property="status"/>
+        <result column="priority" property="priority"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <select id="selectTodayPlans" resultMap="BaseResultMap">
+        SELECT * FROM return_visit_plan
+        WHERE clinic_id = #{clinicId}
+          AND plan_date = #{today}
+          AND status = 'PENDING'
+          AND deleted = 0
+        ORDER BY priority DESC, plan_time ASC
+    </select>
+
+    <select id="selectOverduePlans" resultMap="BaseResultMap">
+        SELECT * FROM return_visit_plan
+        WHERE clinic_id = #{clinicId}
+          AND plan_date &lt; CURDATE()
+          AND status = 'PENDING'
+          AND deleted = 0
+        ORDER BY plan_date ASC, priority DESC
+    </select>
+
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM return_visit_plan
+        WHERE clinic_id = #{clinicId}
+          AND status = #{status}
+          AND deleted = 0
+    </select>
+
+</mapper>

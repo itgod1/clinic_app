@@ -1,0 +1,57 @@
+@import '@/styles/theme.scss';
+
+.table-operate {
+  display: flex;
+  gap: $space-xs;
+  justify-content: center;
+  
+  .el-button {
+    padding: 6px 12px;
+    border-radius: $radius-sm;
+    font-size: $font-size-sm;
+    
+    & + .el-button {
+      margin-left: 0;
+    }
+    
+    &:hover {
+      transform: translateY(-1px);
+    }
+    
+    &--primary.is-link {
+      color: $primary;
+      
+      &:hover {
+        color: $primary-dark;
+        background: $primary-lighter;
+      }
+    }
+    
+    &--success.is-link {
+      color: $success;
+      
+      &:hover {
+        color: #389e0d;
+        background: $success-light;
+      }
+    }
+    
+    &--warning.is-link {
+      color: $warning;
+      
+      &:hover {
+        color: #d46b08;
+        background: $warning-light;
+      }
+    }
+    
+    &--danger.is-link {
+      color: $error;
+      
+      &:hover {
+        color: #cf1322;
+        background: $error-light;
+      }
+    }
+  }
+}

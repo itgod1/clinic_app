@@ -1,0 +1,1 @@
+import{_ as s,o as t,c as o,a as n}from"./index-CIHRmZEu.js";const a={},c={class:"page-container"};function r(_,e){return t(),o("div",c,[...e[0]||(e[0]=[n("h2",null,"角色管理",-1)])])}const i=s(a,[["render",r]]);export{i as default};

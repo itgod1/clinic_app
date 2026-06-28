@@ -1,0 +1,155 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.payment-page.data-v-9808683b {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+.filter-tabs.data-v-9808683b {
+  display: flex;
+  background: #fff;
+  padding: 0 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.filter-tabs .tab-item.data-v-9808683b {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 30rpx;
+  color: #666;
+  position: relative;
+}
+.filter-tabs .tab-item.active.data-v-9808683b {
+  color: #667eea;
+  font-weight: 500;
+}
+.filter-tabs .tab-item.active.data-v-9808683b::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2rpx;
+}
+.payment-list.data-v-9808683b {
+  height: calc(100vh - 100rpx);
+  padding: 20rpx 30rpx;
+}
+.payment-card.data-v-9808683b {
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+.payment-card .card-header.data-v-9808683b {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.payment-card .card-header .prescription-no.data-v-9808683b {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+.payment-card .card-header .status-tag.data-v-9808683b {
+  font-size: 24rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+}
+.payment-card .card-header .status-tag.status-unpaid.data-v-9808683b {
+  background: #fff2f0;
+  color: #ff4d4f;
+}
+.payment-card .card-header .status-tag.status-paid.data-v-9808683b {
+  background: #f6ffed;
+  color: #52c41a;
+}
+.payment-card .card-header .status-tag.status-refund.data-v-9808683b {
+  background: #f5f5f5;
+  color: #999;
+}
+.payment-card .card-body.data-v-9808683b {
+  padding: 24rpx 30rpx;
+}
+.payment-card .card-body .info-row.data-v-9808683b {
+  display: flex;
+  margin-bottom: 16rpx;
+}
+.payment-card .card-body .info-row.data-v-9808683b:last-child {
+  margin-bottom: 0;
+}
+.payment-card .card-body .info-row .label.data-v-9808683b {
+  font-size: 28rpx;
+  color: #999;
+  width: 120rpx;
+}
+.payment-card .card-body .info-row .value.data-v-9808683b {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+}
+.payment-card .card-body .info-row .value.diagnosis.data-v-9808683b {
+  color: #666;
+}
+.payment-card .card-footer.data-v-9808683b {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  background: #fafafa;
+  border-top: 1rpx solid #f5f5f5;
+}
+.payment-card .card-footer .amount-info.data-v-9808683b {
+  display: flex;
+  align-items: center;
+}
+.payment-card .card-footer .amount-info .amount-label.data-v-9808683b {
+  font-size: 28rpx;
+  color: #666;
+  margin-right: 12rpx;
+}
+.payment-card .card-footer .amount-info .amount-value.data-v-9808683b {
+  font-size: 36rpx;
+  color: #ff4d4f;
+  font-weight: bold;
+}
+.payment-card .card-footer .action-btns.data-v-9808683b {
+  display: flex;
+  gap: 16rpx;
+}
+.payment-card .card-footer .action-btns button.data-v-9808683b {
+  margin: 0;
+  padding: 0 32rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  font-size: 28rpx;
+  border-radius: 32rpx;
+  border: none;
+}
+.payment-card .card-footer .action-btns button.data-v-9808683b::after {
+  border: none;
+}
+.payment-card .card-footer .action-btns .btn-pay.data-v-9808683b {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+.payment-card .card-footer .action-btns .btn-detail.data-v-9808683b {
+  background: #f0f0f0;
+  color: #666;
+}

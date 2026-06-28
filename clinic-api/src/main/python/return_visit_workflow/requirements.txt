@@ -1,0 +1,24 @@
+# LangGraph 和 LangChain
+langgraph>=0.0.50
+langchain>=0.1.0
+langchain-openai>=0.0.5
+
+# FastAPI 和服务器
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+
+# HTTP 客户端
+requests>=2.31.0
+httpx>=0.25.0
+
+# 工具库
+python-dotenv>=1.0.0
+python-multipart>=0.0.6
+
+# 可选：数据库支持
+# sqlalchemy>=2.0.0
+# alembic>=1.12.0
+
+# 可选：缓存
+# redis>=5.0.0

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "缴费详情",
+  "usingComponents": {
+    "empty-data": "../../components/empty-data",
+    "payment-cashier": "../../components/payment-cashier"
+  }
+}

@@ -1,0 +1,1225 @@
+================================================================================
+                    口腔诊所SaaS系统 - 数据库设计文档
+                         Version 1.0.0
+================================================================================
+
+【文档说明】
+本文档包含口腔诊所SaaS系统的完整数据库设计方案，包括：
+  1. 数据库设计规范
+  2. 命名规范
+  3. 完整表结构（17张核心表）
+  4. ER关系图
+  5. 索引设计
+  6. 数据库设计原则
+
+================================================================================
+                        第一部分：数据库设计规范
+================================================================================
+
+1.1 数据库选型
+────────────────────────────────────────────────────────────────────────────────
+
+【推荐配置】
+- 主数据库：MySQL 8.0.35+
+- 缓存数据库：Redis 6.2+
+- 消息队列：RabbitMQ 3.11+
+
+【字符集】
+- 统一使用：utf8mb4
+- 排序规则：utf8mb4_general_ci
+
+【表引擎】
+- InnoDB（支持事务、行级锁、外键）
+
+1.2 数据库划分
+────────────────────────────────────────────────────────────────────────────────
+
+【单诊所模式】
+所有数据存放在同一数据库中，通过 clinic_id 字段隔离。
+
+【多诊所模式（SaaS）】
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            clinic_saas_db                                   │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐              │
+│  │   system_xxx    │  │   patient_xxx   │  │   biz_xxx       │              │
+│  │   系统表        │  │   患者相关表    │  │   业务相关表    │              │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1.3 设计原则
+────────────────────────────────────────────────────────────────────────────────
+
+【三范式】
+1. 原子性：字段不可再分
+2. 唯一性：每行唯一区分（主键）
+3. 冗余性：字段只存基本信息，关联通过外键
+
+【反范式】
+- 适当冗余换性能（如订单冗余患者姓名）
+- 历史快照保留（如病历快照）
+
+================================================================================
+                        第二部分：命名规范
+================================================================================
+
+2.1 通用命名规则
+────────────────────────────────────────────────────────────────────────────────
+
+【基本原则】
+- 统一使用小写字母
+- 使用下划线分隔（snake_case）
+- 不使用保留字
+- 见名知意
+
+【长度限制】
+- 数据库名：不超过64字符
+- 表名：不超过64字符
+- 字段名：不超过64字符
+- 索引名：不超过64字符
+
+2.2 命名约定
+────────────────────────────────────────────────────────────────────────────────
+
+【数据库】
+clinic_saas_db              -- 生产库
+clinic_saas_dev             -- 开发库
+clinic_saas_test            -- 测试库
+
+【表命名】
+┌────────────────────────┬──────────────────────────────────┐
+│  模块                   │  表名示例                         │
+├────────────────────────┼──────────────────────────────────┤
+│  系统模块               │  sys_user, sys_role, sys_menu   │
+│  字典模块               │  dict_type, dict_data            │
+│  诊所模块               │  clinic_info, department          │
+│  医生模块               │  doctor_info, doctor_schedule     │
+│  患者模块               │  patient_info, patient_card      │
+│  挂号模块               │  registration, registration_log  │
+│  病历模块               │  medical_record, medical附件     │
+│  处方模块               │  prescription, prescription_item  │
+│  订单模块               │  order, order_item                │
+│  药库模块               │  item_info, stock, stock_flow    │
+│  会员模块               │  member_level, member_package     │
+│  消息模块               │  message, message_template       │
+│  AI模块                 │  ai_consultation, ai_symptom     │
+│  日志模块               │  log_login, log_operation        │
+└────────────────────────┴──────────────────────────────────┘
+
+【字段命名】
+┌────────────────────────┬──────────────────────────────────┐
+│  字段类型               │  命名示例                         │
+├────────────────────────┼──────────────────────────────────┤
+│  主键                   │  id, user_id, clinic_id          │
+│  外键                   │  patient_id, doctor_id           │
+│  创建时间               │  created_at, create_time         │
+│  更新时间               │  updated_at, update_time         │
+│  删除标记               │  deleted（0未删，1已删）         │
+│  状态                   │  status（1正常，2停用等）        │
+│  金额                   │  amount, total_amount, balance   │
+│  编码                   │  code, clinic_code, item_code    │
+│  名称                   │  name, doctor_name, item_name     │
+│  编号                   │  no, order_no, reg_no            │
+│  数量                   │  count, quantity, stock          │
+│  百分比                 │  rate, discount_rate             │
+└────────────────────────┴──────────────────────────────────┘
+
+【索引命名】
+idx_{table}_{column}       -- 普通索引
+uk_{table}_{column}        -- 唯一索引
+fk_{table}_{column}        -- 外键索引
+
+【示例】
+idx_registration_reg_date     -- registration表的reg_date索引
+uk_doctor_doctor_code         -- doctor表的doctor_code唯一索引
+
+================================================================================
+                        第三部分：完整表结构
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+表1：clinic（诊所表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE clinic (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '诊所ID',
+    clinic_name             VARCHAR(100) NOT NULL COMMENT '诊所名称',
+    clinic_code             VARCHAR(20) UNIQUE NOT NULL COMMENT '诊所编码',
+    address                 VARCHAR(200) COMMENT '详细地址',
+    province                VARCHAR(50) COMMENT '省份',
+    city                    VARCHAR(50) COMMENT '城市',
+    district                VARCHAR(50) COMMENT '区县',
+    contact_person          VARCHAR(50) COMMENT '联系人',
+    contact_phone           VARCHAR(20) COMMENT '联系电话',
+    logo_url                VARCHAR(500) COMMENT '诊所Logo',
+    license_no              VARCHAR(50) COMMENT '医疗机构执业许可证号',
+    license_url             VARCHAR(500) COMMENT '许可证图片',
+    business_status         TINYINT DEFAULT 1 COMMENT '营业状态:1营业中 2休息中 3停业',
+    service_start           TIME DEFAULT '08:00:00' COMMENT '营业开始时间',
+    service_end             TIME DEFAULT '18:00:00' COMMENT '营业结束时间',
+    description             TEXT COMMENT '诊所简介',
+    latitude                DECIMAL(10,6) COMMENT '纬度',
+    longitude               DECIMAL(10,6) COMMENT '经度',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted                 TINYINT DEFAULT 0 COMMENT '删除标记:0未删除 1已删除',
+    INDEX idx_clinic_code (clinic_code),
+    INDEX idx_clinic_name (clinic_name),
+    INDEX idx_business_status (business_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='诊所表';
+
+【设计说明】
+- 一个诊所对应一个租户（SaaS模式）
+- clinic_code 用于系统唯一标识
+- 支持地理位置服务
+
+────────────────────────────────────────────────────────────────────────────────
+表2：department（科室表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE department (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '科室ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    dept_name               VARCHAR(50) NOT NULL COMMENT '科室名称',
+    dept_code               VARCHAR(20) NOT NULL COMMENT '科室编码',
+    dept_type               TINYINT COMMENT '科室类型:1口腔科 2正畸科 3种植科 4儿童牙科 5牙周科 6颌面外科',
+    parent_id               BIGINT DEFAULT 0 COMMENT '上级科室ID',
+    sort_order              INT DEFAULT 0 COMMENT '排序号',
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1启用 2停用',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_clinic_dept (clinic_id, dept_code),
+    INDEX idx_clinic_dept_type (clinic_id, dept_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='科室表';
+
+【设计说明】
+- 科室类型区分口腔专科
+- parent_id 支持多级科室分类
+- 同一诊所内科室编码唯一
+
+────────────────────────────────────────────────────────────────────────────────
+表3：doctor（医生表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE doctor (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '医生ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    dept_id                 BIGINT NOT NULL COMMENT '所属科室ID',
+    doctor_name             VARCHAR(50) NOT NULL COMMENT '医生姓名',
+    doctor_code             VARCHAR(20) UNIQUE NOT NULL COMMENT '医生工号',
+    title                   VARCHAR(20) COMMENT '职称:1主任医师 2副主任医师 3主治医师 4住院医师 5执业医师',
+    specialty               VARCHAR(200) COMMENT '专长领域，多个用逗号分隔',
+    phone                   VARCHAR(20) COMMENT '手机号',
+    email                   VARCHAR(100) COMMENT '邮箱',
+    avatar_url              VARCHAR(500) COMMENT '头像URL',
+    introduction            TEXT COMMENT '个人简介',
+    work_status             TINYINT DEFAULT 1 COMMENT '在岗状态:1在岗 2休息 3离职',
+    service_count           INT DEFAULT 0 COMMENT '累计接诊次数',
+    rating                  DECIMAL(3,2) DEFAULT 5.00 COMMENT '评分',
+    join_date               DATE COMMENT '入职日期',
+    position                VARCHAR(50) COMMENT '职位',
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1正常 2停用',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_doctor_code (doctor_code),
+    INDEX idx_clinic_dept (clinic_id, dept_id),
+    INDEX idx_doctor_name (doctor_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='医生表';
+
+【设计说明】
+- 医生与科室关联，支持多科室（医生多点执业场景）
+- service_count 和 rating 用于医生评价展示
+
+────────────────────────────────────────────────────────────────────────────────
+表4：patient（患者表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE patient (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '患者ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    patient_name            VARCHAR(50) NOT NULL COMMENT '患者姓名',
+    patient_code            VARCHAR(20) UNIQUE NOT NULL COMMENT '患者编号',
+    phone                   VARCHAR(20) NOT NULL COMMENT '手机号',
+    id_card                 VARCHAR(18) COMMENT '身份证号',
+    gender                  TINYINT COMMENT '性别:1男 2女 3未知',
+    birthday                 DATE COMMENT '出生日期',
+    age                     INT COMMENT '年龄（冗余字段，避免计算）',
+    occupation              VARCHAR(50) COMMENT '职业',
+    workplace               VARCHAR(100) COMMENT '工作单位',
+    address                 VARCHAR(200) COMMENT '住址',
+    allergy_history         TEXT COMMENT '过敏史',
+    medical_history         TEXT COMMENT '既往病史',
+    family_history          TEXT COMMENT '家族病史',
+    smoke_history           VARCHAR(20) COMMENT '吸烟史:1无 2偶尔 3经常',
+    drink_history           VARCHAR(20) COMMENT '饮酒史:1无 2偶尔 3经常',
+    emergency_contact       VARCHAR(50) COMMENT '紧急联系人',
+    emergency_phone         VARCHAR(20) COMMENT '紧急联系电话',
+    relation                VARCHAR(20) COMMENT '与紧急联系人关系',
+    headimgurl              VARCHAR(500) COMMENT '头像URL',
+    openid                  VARCHAR(100) COMMENT '微信公众号OpenID',
+    miniopenid              VARCHAR(100) COMMENT '小程序OpenID',
+    unionid                 VARCHAR(100) COMMENT '微信UnionID',
+    member_level            TINYINT DEFAULT 1 COMMENT '会员等级:1普通 2银卡 3金卡 4钻石',
+    balance                 DECIMAL(10,2) DEFAULT 0.00 COMMENT '账户余额',
+    points                  INT DEFAULT 0 COMMENT '积分余额',
+    total_points             INT DEFAULT 0 COMMENT '累计积分',
+    register_source         TINYINT DEFAULT 1 COMMENT '注册来源:1小程序 2前台 3App 4其他',
+    first_visit_date         DATE COMMENT '首次到诊日期',
+    last_visit_date         DATE COMMENT '最近到诊日期',
+    visit_count             INT DEFAULT 0 COMMENT '累计到诊次数',
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1正常 2黑名单 3已删除',
+    blacklist_reason        VARCHAR(500) COMMENT '拉黑原因',
+    remark                  VARCHAR(500) COMMENT '备注',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_patient_code (patient_code),
+    UNIQUE KEY uk_patient_phone (clinic_id, phone),
+    INDEX idx_patient_name (patient_name),
+    INDEX idx_patient_openid (openid),
+    INDEX idx_patient_miniopenid (miniopenid),
+    INDEX idx_clinic_member (clinic_id, member_level)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='患者表';
+
+【设计说明】
+- 手机号+诊所唯一，避免同诊所患者重复
+- 冗余年龄字段，避免频繁计算
+- 会员相关字段支持会员营销体系
+- 支持微信生态对接
+
+────────────────────────────────────────────────────────────────────────────────
+表5：registration（挂号表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE registration (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '挂号ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    patient_id              BIGINT NOT NULL COMMENT '患者ID',
+    doctor_id               BIGINT NOT NULL COMMENT '医生ID',
+    dept_id                 BIGINT NOT NULL COMMENT '科室ID',
+    reg_no                  VARCHAR(30) UNIQUE NOT NULL COMMENT '挂号编号',
+    reg_date                DATE NOT NULL COMMENT '预约日期',
+    reg_time                TIME NOT NULL COMMENT '预约时段开始',
+    reg_time_end            TIME COMMENT '预约时段结束',
+    queue_no                INT COMMENT '排队号',
+    visit_type              TINYINT NOT NULL DEFAULT 1 COMMENT '就诊类型:1初诊 2复诊 3急诊',
+    chief_complaint         TEXT COMMENT '主诉',
+    ai_pre_diagnosis        JSON COMMENT 'AI预问诊结果JSON',
+    disease_status          TINYINT DEFAULT 1 COMMENT '就诊状态:1已挂号 2已签到 3就诊中 4已完成 5已取消 6已退号 7过号',
+    reg_source              TINYINT DEFAULT 1 COMMENT '挂号来源:1小程序 2前台 3App 4医生站',
+    source_channel          VARCHAR(50) COMMENT '第三方渠道来源',
+    is_arrived              TINYINT DEFAULT 0 COMMENT '是否到店:0否 1是',
+    arrived_time            DATETIME COMMENT '到店时间',
+    see_doctor_time         DATETIME COMMENT '开始接诊时间',
+    finish_time             DATETIME COMMENT '完成时间',
+    cancel_time             DATETIME COMMENT '取消时间',
+    cancel_reason           VARCHAR(200) COMMENT '取消原因',
+    cancel_operator_id      BIGINT COMMENT '取消操作人ID',
+    expected_queue          INT COMMENT '预计排队人数',
+    expected_wait_minutes   INT COMMENT '预计等待分钟数',
+    appointment_card_no     VARCHAR(50) COMMENT '预约卡号（体检等场景）',
+   remark                  VARCHAR(500) COMMENT '备注',
+    operator_id             BIGINT COMMENT '操作员ID（前台挂号）',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_reg_no (reg_no),
+    INDEX idx_reg_date_status (reg_date, disease_status),
+    INDEX idx_patient_reg (patient_id, reg_date),
+    INDEX idx_doctor_reg (doctor_id, reg_date, disease_status),
+    INDEX idx_clinic_date (clinic_id, reg_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='挂号表';
+
+【设计说明】
+- 核心业务表，串联患者-医生-科室关系
+- 状态机管理完整就诊流程
+- ai_pre_diagnosis 存储AI预问诊结构化数据
+
+────────────────────────────────────────────────────────────────────────────────
+表6：medical_record（病历表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE medical_record (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '病历ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    registration_id         BIGINT NOT NULL COMMENT '挂号ID',
+    patient_id              BIGINT NOT NULL COMMENT '患者ID',
+    doctor_id               BIGINT NOT NULL COMMENT '医生ID',
+    dept_id                 BIGINT COMMENT '科室ID',
+    record_no               VARCHAR(30) UNIQUE NOT NULL COMMENT '病历号',
+
+    -- 就诊时间
+    visit_date              DATETIME NOT NULL COMMENT '就诊时间',
+
+    -- 主诉与现病史
+    chief_complaint         TEXT COMMENT '主诉',
+    present_illness         TEXT COMMENT '现病史',
+    past_history            TEXT COMMENT '既往史',
+    allergy_record          TEXT COMMENT '过敏史',
+
+    -- 检查
+    physical_exam           TEXT COMMENT '体格检查',
+    oral_exam               TEXT COMMENT '口腔检查',
+    special_exam            TEXT COMMENT '特殊检查',
+    attachment_urls         JSON COMMENT '检查附件URLs',
+
+    -- 诊断
+    diagnosis               VARCHAR(500) COMMENT '诊断',
+    diagnosis_code          VARCHAR(50) COMMENT 'ICD-10编码',
+    disease_name            VARCHAR(200) COMMENT '疾病名称',
+    disease_category        VARCHAR(50) COMMENT '疾病分类',
+
+    -- AI辅助
+    ai_suggestion           TEXT COMMENT 'AI建议',
+    ai_warning              TEXT COMMENT 'AI预警（过敏等）',
+    ai_diagnosis_help       TEXT COMMENT 'AI诊断辅助',
+
+    -- 治疗
+    treatment_plan          TEXT COMMENT '治疗计划',
+    treatment_note          TEXT COMMENT '治疗备注',
+    prognosis                VARCHAR(200) COMMENT '预后',
+    current_condition       VARCHAR(20) COMMENT '现状:1治愈 2好转 3未愈 4恶化',
+
+    -- 医嘱
+    doctor_advice           TEXT COMMENT '医嘱',
+    revisit_advice          VARCHAR(200) COMMENT '复诊建议',
+    revisit_date            DATE COMMENT '建议复诊日期',
+
+    -- 病历状态
+    record_status           TINYINT DEFAULT 1 COMMENT '状态:1草稿 2已完成 3已归档 4已撤销',
+    isPrinted               TINYINT DEFAULT 0 COMMENT '是否已打印:0否 1是',
+    print_time              DATETIME COMMENT '打印时间',
+
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_record_no (record_no),
+    INDEX idx_patient_record (patient_id, visit_date),
+    INDEX idx_doctor_record (doctor_id, visit_date),
+    INDEX idx_registration (registration_id),
+    INDEX idx_diagnosis (diagnosis)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='病历表';
+
+【设计说明】
+- 病历是医疗核心数据，字段设计全面
+- 支持AI辅助诊断功能
+- 完整的就诊时间线追踪
+
+────────────────────────────────────────────────────────────────────────────────
+表7：prescription（处方表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE prescription (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '处方ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    medical_record_id       BIGINT COMMENT '关联病历ID',
+    registration_id         BIGINT NOT NULL COMMENT '关联挂号ID',
+    patient_id              BIGINT NOT NULL COMMENT '患者ID',
+    doctor_id               BIGINT NOT NULL COMMENT '开方医生ID',
+    prescription_no          VARCHAR(30) UNIQUE NOT NULL COMMENT '处方号',
+    prescription_type       TINYINT NOT NULL DEFAULT 1 COMMENT '处方类型:1西药 2中药 3检查 4治疗 5材料',
+
+    -- 处方信息
+    diagnosis               VARCHAR(200) COMMENT '临床诊断',
+    diagnosis_code          VARCHAR(50) COMMENT 'ICD-10编码',
+    medicalAdvice           TEXT COMMENT '医嘱',
+
+    -- 费用信息
+    total_amount            DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT '处方总金额',
+    discount_amount         DECIMAL(10,2) DEFAULT 0 COMMENT '优惠金额',
+    actual_amount            DECIMAL(10,2) COMMENT '实收金额',
+    cost_amount             DECIMAL(10,2) COMMENT '成本金额',
+    profit_amount           DECIMAL(10,2) COMMENT '利润金额',
+
+    -- 缴费状态
+    payment_status          TINYINT DEFAULT 0 COMMENT '缴费状态:0未缴费 1已缴费 2部分缴费 3已退费',
+    payment_time            DATETIME COMMENT '缴费时间',
+    payment_method          TINYINT COMMENT '缴费方式:1微信 2支付宝 3现金 4医保 5会员卡',
+    payer_name              VARCHAR(50) COMMENT '付款人姓名',
+
+    -- 执行状态
+    execution_status        TINYINT DEFAULT 0 COMMENT '执行状态:0未执行 1部分执行 2已完成 3已作废',
+    dispense_time           DATETIME COMMENT '发药时间',
+    dispense_operator_id   BIGINT COMMENT '发药人ID',
+
+    -- 作废/退费
+    cancel_time             DATETIME COMMENT '作废/退费时间',
+    cancel_reason           VARCHAR(200) COMMENT '作废/退费原因',
+    cancel_operator_id     BIGINT COMMENT '操作人ID',
+    refund_amount           DECIMAL(10,2) COMMENT '退款金额',
+
+    -- 处方状态
+    prescription_status     TINYINT DEFAULT 1 COMMENT '状态:1有效 2已作废 3已退费',
+    valid_days              INT DEFAULT 7 COMMENT '处方有效期天数',
+
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_prescription_no (prescription_no),
+    INDEX idx_patient_pres (patient_id, create_time),
+    INDEX idx_doctor_pres (doctor_id, create_time),
+    INDEX idx_medical_record (medical_record_id),
+    INDEX idx_payment_status (payment_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='处方表';
+
+【设计说明】
+- 处方与病历、挂号关联
+- 完整的费用和利润计算
+- 支持退费和作废
+
+────────────────────────────────────────────────────────────────────────────────
+表8：prescription_item（处方明细表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE prescription_item (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '明细ID',
+    prescription_id         BIGINT NOT NULL COMMENT '处方ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+
+    -- 项目信息
+    item_type               TINYINT NOT NULL COMMENT '项目类型:1药品 2检查 3治疗 4材料 5挂号费',
+    item_id                 BIGINT COMMENT '项目表ID（关联item_info）',
+    item_code               VARCHAR(50) COMMENT '项目编码',
+    item_name               VARCHAR(100) NOT NULL COMMENT '项目名称',
+    item_spec               VARCHAR(100) COMMENT '规格',
+    unit                    VARCHAR(20) COMMENT '单位',
+    manufacturer            VARCHAR(100) COMMENT '生产厂家',
+    batch_no                VARCHAR(50) COMMENT '批次号',
+
+    -- 数量价格
+    quantity                DECIMAL(10,2) NOT NULL DEFAULT 1 COMMENT '数量',
+    unit_price              DECIMAL(10,2) NOT NULL COMMENT '单价',
+    subtotal                DECIMAL(10,2) NOT NULL COMMENT '小计金额',
+    cost_price              DECIMAL(10,2) COMMENT '成本单价',
+    cost_subtotal           DECIMAL(10,2) COMMENT '成本小计',
+
+    -- 药品专用
+    usage                   VARCHAR(200) COMMENT '用法用量',
+    frequency               VARCHAR(50) COMMENT '频率:每日1次/每日2次等',
+    duration                VARCHAR(50) COMMENT '疗程',
+    route                   VARCHAR(50) COMMENT '给药途径:口服/外用/静脉滴注等',
+    dosage                   VARCHAR(100) COMMENT '单次剂量',
+    concentration           VARCHAR(100) COMMENT '浓度',
+    storage_condition       VARCHAR(100) COMMENT '储存条件',
+
+    -- 执行信息
+    quantity_dispensed       DECIMAL(10,2) DEFAULT 0 COMMENT '已发药数量',
+    dispense_status         TINYINT DEFAULT 0 COMMENT '发药状态:0未发 1已发 2部分发',
+
+    -- 备注
+    notes                   VARCHAR(500) COMMENT '备注',
+    sort_order              INT DEFAULT 0 COMMENT '排序',
+
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    INDEX idx_prescription (prescription_id),
+    INDEX idx_item (item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='处方明细表';
+
+【设计说明】
+- 药品字段丰富，支持处方管理办法
+- 与 item_info 关联，也支持临时药品
+- 支持部分发药场景
+
+────────────────────────────────────────────────────────────────────────────────
+表9：patient_card（会员卡表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE patient_card (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '卡ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    patient_id              BIGINT NOT NULL COMMENT '患者ID',
+    card_no                 VARCHAR(30) UNIQUE NOT NULL COMMENT '卡号',
+    card_type               TINYINT NOT NULL COMMENT '卡类型:1余额卡 2套餐卡 3折扣卡 4次卡',
+    card_name               VARCHAR(50) COMMENT '卡名称',
+
+    -- 余额相关（余额卡/折扣卡）
+    balance                 DECIMAL(10,2) DEFAULT 0 COMMENT '当前余额',
+    total_amount            DECIMAL(10,2) COMMENT '卡内总额',
+    give_amount             DECIMAL(10,2) DEFAULT 0 COMMENT '赠送金额',
+    consumed_amount         DECIMAL(10,2) DEFAULT 0 COMMENT '已消费金额',
+
+    -- 折扣相关
+    discount_rate           DECIMAL(3,2) DEFAULT 1.00 COMMENT '折扣率（0.00-1.00）',
+    points_rate             DECIMAL(3,2) DEFAULT 1.00 COMMENT '积分倍率',
+    discount_items          JSON COMMENT '指定项目折扣（JSON格式）',
+
+    -- 套餐相关（套餐卡/次卡）
+    package_content         JSON COMMENT '套餐内容（JSON格式）',
+    remaining_times         INT COMMENT '剩余次数（次卡）',
+    total_times             INT COMMENT '总次数（次卡）',
+
+    -- 有效期
+    valid_start              DATE COMMENT '有效期开始',
+    valid_end               DATE COMMENT '有效期结束',
+    extend_days             INT DEFAULT 0 COMMENT '延期天数',
+
+    -- 状态
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1正常 2已过期 3已用完 4已冻结 5已退卡',
+    activate_time           DATETIME COMMENT '激活时间',
+    activate_operator_id    BIGINT COMMENT '激活操作人ID',
+
+    -- 退款
+    refund_time             DATETIME COMMENT '退卡时间',
+    refund_amount           DECIMAL(10,2) COMMENT '退卡金额',
+    refund_reason           VARCHAR(200) COMMENT '退卡原因',
+
+    -- 来源
+    source_card_id          BIGINT COMMENT '来源卡ID（升级/续费场景）',
+    original_card_id        BIGINT COMMENT '原卡ID（换卡场景）',
+
+    remark                  VARCHAR(500) COMMENT '备注',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_card_no (card_no),
+    INDEX idx_patient_card (patient_id),
+    INDEX idx_card_status (status),
+    INDEX idx_valid_end (valid_end)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员卡表';
+
+【设计说明】
+- 支持多种卡类型：余额卡、套餐卡、折扣卡、次卡
+- 完整的卡生命周期管理
+- 支持卡升级、换卡等场景
+
+────────────────────────────────────────────────────────────────────────────────
+表10：card_transaction（卡交易流水表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE card_transaction (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '流水ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    card_id                 BIGINT NOT NULL COMMENT '会员卡ID',
+    patient_id              BIGINT NOT NULL COMMENT '患者ID',
+
+    -- 交易信息
+    trans_type              TINYINT NOT NULL COMMENT '交易类型:1充值 2消费 3赠送 4退款 5冻结 6解冻 7过期 8升级',
+    trans_amount            DECIMAL(10,2) NOT NULL COMMENT '交易金额（正负）',
+    before_balance          DECIMAL(10,2) COMMENT '交易前余额',
+    after_balance           DECIMAL(10,2) COMMENT '交易后余额',
+
+    -- 关联
+    order_no                VARCHAR(50) COMMENT '关联订单号',
+    prescription_id         BIGINT COMMENT '关联处方ID',
+
+    -- 操作信息
+    operator_id             BIGINT COMMENT '操作人ID',
+    operator_name          VARCHAR(50) COMMENT '操作人姓名',
+    trans_time              DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '交易时间',
+
+    remark                  VARCHAR(500) COMMENT '备注',
+
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    INDEX idx_card_trans (card_id, trans_time),
+    INDEX idx_patient_trans (patient_id, trans_time),
+    INDEX idx_order_trans (order_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='卡交易流水表';
+
+────────────────────────────────────────────────────────────────────────────────
+表11：order（订单表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE `order` (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '订单ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    patient_id              BIGINT NOT NULL COMMENT '患者ID',
+    order_no                VARCHAR(50) UNIQUE NOT NULL COMMENT '订单编号',
+
+    -- 订单类型
+    order_type              TINYINT NOT NULL COMMENT '订单类型:1挂号 2处方 3会员卡 4充值 5套餐 6其他',
+    related_id              BIGINT COMMENT '关联业务ID（挂号ID/处方ID/卡ID）',
+
+    -- 金额信息
+    total_amount            DECIMAL(10,2) NOT NULL COMMENT '订单总金额',
+    discount_amount         DECIMAL(10,2) DEFAULT 0 COMMENT '优惠金额',
+    coupon_amount           DECIMAL(10,2) DEFAULT 0 COMMENT '优惠券金额',
+    points_amount           DECIMAL(10,2) DEFAULT 0 COMMENT '积分抵扣金额',
+    pay_amount              DECIMAL(10,2) NOT NULL COMMENT '实付金额',
+    cost_amount             DECIMAL(10,2) COMMENT '成本金额',
+
+    -- 支付信息
+    payment_method          TINYINT COMMENT '支付方式:1微信 2支付宝 3现金 4医保 5会员卡 6转账',
+    payment_status          TINYINT DEFAULT 0 COMMENT '支付状态:0待支付 1已支付 2已退款 3已取消 4部分退款',
+    pay_time                DATETIME COMMENT '支付时间',
+    trade_no                VARCHAR(100) COMMENT '第三方交易号',
+
+    -- 退款信息
+    refund_time             DATETIME COMMENT '退款时间',
+    refund_amount           DECIMAL(10,2) DEFAULT 0 COMMENT '已退款金额',
+    refund_reason           VARCHAR(200) COMMENT '退款原因',
+    refund_operator_id      BIGINT COMMENT '退款操作人ID',
+
+    -- 患者信息冗余
+    patient_name            VARCHAR(50) COMMENT '患者姓名（冗余）',
+
+    -- 操作信息
+    operator_id             BIGINT COMMENT '操作员ID',
+    operator_name          VARCHAR(50) COMMENT '操作员姓名',
+
+    -- 发票
+    invoice_status          TINYINT DEFAULT 0 COMMENT '发票状态:0未开 1已开 2已作废',
+    invoice_no              VARCHAR(50) COMMENT '发票号',
+    invoice_time            DATETIME COMMENT '开票时间',
+
+    remark                  VARCHAR(500) COMMENT '备注',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_order_no (order_no),
+    INDEX idx_patient_order (patient_id, create_time),
+    INDEX idx_order_type (order_type, payment_status),
+    INDEX idx_pay_time (pay_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单表';
+
+────────────────────────────────────────────────────────────────────────────────
+表12：item_info（项目/药品表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE item_info (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '项目ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    item_code               VARCHAR(50) UNIQUE NOT NULL COMMENT '项目编码',
+    item_name               VARCHAR(100) NOT NULL COMMENT '项目名称',
+    item_type               TINYINT NOT NULL COMMENT '类型:1药品 2检查 3治疗 4材料 5挂号费 6麻醉 7手术',
+
+    -- 分类
+    category_id             BIGINT COMMENT '分类ID',
+    category_name           VARCHAR(50) COMMENT '分类名称',
+
+    -- 规格信息
+    unit                    VARCHAR(20) COMMENT '单位',
+    spec                    VARCHAR(100) COMMENT '规格',
+    manufacturer            VARCHAR(100) COMMENT '生产厂家',
+    approval_no             VARCHAR(50) COMMENT '批准文号',
+    barcode                 VARCHAR(50) COMMENT '条形码',
+   dosage_form             VARCHAR(50) COMMENT '剂型（药品）',
+
+    -- 价格
+    purchase_price          DECIMAL(10,2) COMMENT '进货价',
+    retail_price            DECIMAL(10,2) NOT NULL COMMENT '零售价',
+    member_price            DECIMAL(10,2) COMMENT '会员价',
+    vip_price               DECIMAL(10,2) COMMENT 'VIP价',
+    wholesale_price         DECIMAL(10,2) COMMENT '批发价',
+
+    -- 库存
+    stock                   INT DEFAULT 0 COMMENT '当前库存',
+    low_stock_alert         INT DEFAULT 10 COMMENT '库存预警值',
+    safe_stock              INT DEFAULT 0 COMMENT '安全库存',
+    stock_status            TINYINT DEFAULT 1 COMMENT '库存状态:1正常 2预警 3缺货',
+    unit_of_measure         VARCHAR(20) COMMENT '计量单位',
+
+    -- 药品专用
+    storage_condition       VARCHAR(100) COMMENT '储存条件',
+    valid_months            INT COMMENT '有效期（月）',
+    contraindication        TEXT COMMENT '禁忌症',
+    pregnancy_warning       VARCHAR(100) COMMENT '孕妇警告',
+    child_dosage            VARCHAR(100) COMMENT '儿童剂量说明',
+
+    -- 使用说明
+    usage                   VARCHAR(200) COMMENT '用法说明',
+    notes                   VARCHAR(500) COMMENT '备注',
+
+    -- 状态
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1在用 2停用 3淘汰',
+    sort_order              INT DEFAULT 0 COMMENT '排序',
+    is_recommend            TINYINT DEFAULT 0 COMMENT '是否推荐:0否 1是',
+    is_package              TINYINT DEFAULT 0 COMMENT '是否套餐:0否 1是',
+
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_item_code (item_code),
+    INDEX idx_item_type (item_type),
+    INDEX idx_clinic_item (clinic_id, item_type),
+    INDEX idx_stock_status (stock_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='项目/药品表';
+
+────────────────────────────────────────────────────────────────────────────────
+表13：stock（库存流水表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE stock (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '流水ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    item_id                 BIGINT NOT NULL COMMENT '项目ID',
+
+    -- 库存变动
+    stock_type              TINYINT NOT NULL COMMENT '类型:1入库 2出库',
+    operation_type          TINYINT NOT NULL COMMENT '业务类型:1采购入库 2退货入库 3盘盈 4销售出库 5盘亏 6报损 7领用出库',
+    quantity                INT NOT NULL COMMENT '变动数量（正数入库/负数出库）',
+    before_stock            INT COMMENT '变动前库存',
+    after_stock             INT COMMENT '变动后库存',
+
+    -- 价格
+    unit_price              DECIMAL(10,2) COMMENT '单价',
+    total_amount            DECIMAL(10,2) COMMENT '总金额',
+
+    -- 来源信息
+    batch_no                VARCHAR(50) COMMENT '批次号',
+    supplier                VARCHAR(100) COMMENT '供应商',
+    production_date         DATE COMMENT '生产日期',
+    expire_date             DATE COMMENT '有效期',
+
+    -- 关联单据
+    related_order_no        VARCHAR(50) COMMENT '关联单据号',
+    related_prescription_id BIGINT COMMENT '关联处方ID（销售出库时）',
+
+    -- 操作信息
+    operator_id             BIGINT COMMENT '操作员ID',
+    operator_name           VARCHAR(50) COMMENT '操作员姓名',
+    operate_time            DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+
+    remark                  VARCHAR(500) COMMENT '备注',
+
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    INDEX idx_item_stock (item_id, create_time),
+    INDEX idx_batch_no (batch_no),
+    INDEX idx_operation_type (operation_type, create_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='库存流水表';
+
+────────────────────────────────────────────────────────────────────────────────
+表14：schedule（医生排班表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE schedule (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '排班ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    doctor_id               BIGINT NOT NULL COMMENT '医生ID',
+    schedule_date           DATE NOT NULL COMMENT '排班日期',
+    time_slot_start         TIME NOT NULL COMMENT '时段开始',
+    time_slot_end           TIME NOT NULL COMMENT '时段结束',
+
+    -- 号源
+    total_quota             INT NOT NULL COMMENT '总号源数',
+    used_quota              INT DEFAULT 0 COMMENT '已用号源',
+    remain_quota            INT NOT NULL COMMENT '剩余号源',
+    internet_quota          INT COMMENT '网上预约号源',
+    internet_used           INT DEFAULT 0 COMMENT '网上已用',
+    spot_quota              INT COMMENT '现场号源',
+    spot_used               INT DEFAULT 0 COMMENT '现场已用',
+
+    -- 状态
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1可预约 2已满 3停诊 4休假',
+    stop_reason             VARCHAR(200) COMMENT '停诊原因',
+
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_doctor_date_slot (doctor_id, schedule_date, time_slot_start),
+    INDEX idx_schedule_date (schedule_date, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='医生排班表';
+
+【设计说明】
+- 号源区分网上和现场
+- 自动计算剩余号源
+
+────────────────────────────────────────────────────────────────────────────────
+表15：ai_consultation（AI问诊记录表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE ai_consultation (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '记录ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    patient_id              BIGINT NOT NULL COMMENT '患者ID',
+    session_id              VARCHAR(50) NOT NULL COMMENT '会话ID',
+    consultation_type       TINYINT NOT NULL COMMENT '问诊类型:1智能预问诊 2健康咨询 3症状查询 4用药咨询',
+
+    -- 用户输入
+    user_input              TEXT COMMENT '用户原始输入',
+    symptoms                JSON COMMENT '结构化症状数据',
+
+    -- AI输出
+    ai_response             TEXT COMMENT 'AI回复内容',
+    possible_diseases       JSON COMMENT '可能疾病列表',
+    urgency_level           TINYINT COMMENT '紧急程度:1一般 2较急 3紧急 4危重',
+    suggestion               TEXT COMMENT '建议内容',
+    warnings                 JSON COMMENT '预警信息',
+    department_suggest      VARCHAR(50) COMMENT '建议科室',
+
+    -- AI模型信息
+    model_name               VARCHAR(50) COMMENT 'AI模型名称',
+    tokens_used             INT COMMENT '消耗Token数',
+    latency_ms              INT COMMENT '响应延迟毫秒',
+
+    -- 关联
+    registration_id         BIGINT COMMENT '关联挂号ID（预问诊时）',
+    conversation_history    JSON COMMENT '对话历史',
+
+    -- 评价
+    rating                  TINYINT COMMENT '满意度:1-5',
+    feedback                VARCHAR(500) COMMENT '用户反馈',
+
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    INDEX idx_session_time (session_id, created_at),
+    INDEX idx_patient_session (patient_id, session_id),
+    INDEX idx_registration (registration_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI问诊记录表';
+
+────────────────────────────────────────────────────────────────────────────────
+表16：sys_user（系统用户表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE sys_user (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
+    clinic_id               BIGINT NOT NULL COMMENT '所属诊所ID',
+    dept_id                 BIGINT COMMENT '所属部门ID（冗余）',
+    username                VARCHAR(50) UNIQUE NOT NULL COMMENT '用户名',
+    password                 VARCHAR(200) NOT NULL COMMENT '密码（加密存储）',
+    salt                    VARCHAR(50) COMMENT '密码盐值',
+    real_name                VARCHAR(50) COMMENT '真实姓名',
+    phone                   VARCHAR(20) COMMENT '手机号',
+    email                   VARCHAR(100) COMMENT '邮箱',
+    avatar                   VARCHAR(500) COMMENT '头像URL',
+    role_id                 BIGINT NOT NULL COMMENT '角色ID',
+    post                    VARCHAR(50) COMMENT '岗位',
+    sex                     TINYINT DEFAULT 1 COMMENT '性别:1男 2女',
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1正常 2停用 3离职',
+    login_count             INT DEFAULT 0 COMMENT '登录次数',
+    last_login_ip           VARCHAR(50) COMMENT '最后登录IP',
+    last_login_time         DATETIME COMMENT '最后登录时间',
+    password_expire_time    DATETIME COMMENT '密码过期时间',
+    password_error_count    INT DEFAULT 0 COMMENT '密码错误次数',
+    lock_time               DATETIME COMMENT '锁定时间',
+    remark                  VARCHAR(500) COMMENT '备注',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_username (username),
+    INDEX idx_clinic_user (clinic_id),
+    INDEX idx_role (role_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统用户表';
+
+────────────────────────────────────────────────────────────────────────────────
+表17：sys_role（角色表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE sys_role (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '角色ID',
+    role_name               VARCHAR(50) NOT NULL COMMENT '角色名称',
+    role_code               VARCHAR(50) UNIQUE NOT NULL COMMENT '角色编码',
+    description             VARCHAR(200) COMMENT '角色描述',
+    data_scope              TINYINT DEFAULT 1 COMMENT '数据范围:1本机构数据 2本部门数据 3仅本人数据 4自定义',
+    dept_ids                JSON COMMENT '自定义部门ID列表',
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1正常 2停用',
+    sort_order              INT DEFAULT 0 COMMENT '排序',
+    is_system               TINYINT DEFAULT 0 COMMENT '是否系统内置:0否 1是',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    UNIQUE KEY uk_role_code (role_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
+
+-- 预置角色数据
+INSERT INTO sys_role (role_name, role_code, description, is_system) VALUES
+('超级管理员', 'super_admin', '系统超级管理员，拥有所有权限', 1),
+('诊所管理员', 'clinic_admin', '诊所管理员，拥有本诊所所有权限', 1),
+('医生', 'doctor', '医生角色', 1),
+('护士', 'nurse', '护士角色', 1),
+('收银员', 'cashier', '收银员角色', 1),
+('库管员', 'storekeeper', '库管员角色', 1);
+
+────────────────────────────────────────────────────────────────────────────────
+附表：sys_menu（菜单权限表）
+────────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE sys_menu (
+    id                      BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '菜单ID',
+    parent_id               BIGINT DEFAULT 0 COMMENT '父菜单ID',
+    menu_name               VARCHAR(50) NOT NULL COMMENT '菜单名称',
+    menu_code               VARCHAR(50) COMMENT '菜单编码',
+    menu_type               TINYINT NOT NULL COMMENT '类型:1目录 2菜单 3按钮',
+    path                    VARCHAR(200) COMMENT '路由路径',
+    component               VARCHAR(200) COMMENT '组件路径',
+    redirect                VARCHAR(200) COMMENT '重定向路径',
+    icon                    VARCHAR(100) COMMENT '图标',
+    is_visible              TINYINT DEFAULT 1 COMMENT '是否显示:0否 1是',
+    is_cache                TINYINT DEFAULT 0 COMMENT '是否缓存:0否 1是',
+    is_affix               TINYINT DEFAULT 0 COMMENT '是否固定:0否 1是',
+    sort_order              INT DEFAULT 0 COMMENT '排序',
+    permission               VARCHAR(100) COMMENT '权限标识',
+    status                  TINYINT DEFAULT 1 COMMENT '状态:1正常 0停用',
+    created_at              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT DEFAULT 0,
+    INDEX idx_parent (parent_id),
+    INDEX idx_menu_type (menu_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='菜单权限表';
+
+================================================================================
+                        第四部分：ER关系图
+================================================================================
+
+4.1 实体关系概述
+────────────────────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              ER 关系图                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│    ┌──────────────┐                                                        │
+│    │   clinic     │                                                        │
+│    │   诊所       │◀──────┐                                                │
+│    └──────────────┘       │                                                │
+│           │               │ 1:N                                          │
+│           │               │                                               │
+│           ▼               ▼                                                │
+│    ┌──────────────┐  ┌──────────────┐                                      │
+│    │ department   │  │    doctor    │                                      │
+│    │   科室       │◀─┼──── 医生     │                                      │
+│    └──────────────┘  └──────────────┘                                      │
+│                              │                                              │
+│                              │ 1:N                                          │
+│                              ▼                                              │
+│    ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                   │
+│    │   schedule   │  │registration │  │patient_card │                   │
+│    │   排班       │──│    挂号       │──│    会员卡    │                   │
+│    └──────────────┘  └──────────────┘  └──────────────┘                   │
+│                              │                                              │
+│           ┌──────────────────┼──────────────────┐                          │
+│           │                  │                  │                          │
+│           ▼                  ▼                  ▼                          │
+│    ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                   │
+│    │medical_record│──│prescription  │  │    order     │                   │
+│    │    病历       │  │    处方       │  │    订单       │                   │
+│    └──────────────┘  └──────────────┘  └──────────────┘                   │
+│                              │                                              │
+│                              ▼                                              │
+│                       ┌──────────────┐                                      │
+│                       │prescription_ │                                      │
+│                       │    _item     │                                      │
+│                       │   处方明细    │                                      │
+│                       └──────────────┘                                      │
+│                              │                                              │
+│                              ▼                                              │
+│                       ┌──────────────┐                                      │
+│                       │item_info     │◀─────┐                              │
+│                       │   项目/药品  │       │ 1:N                        │
+│                       └──────────────┘       │                              │
+│                                                │                              │
+│                                                ▼                              │
+│                       ┌──────────────┐                                      │
+│                       │    stock     │                                      │
+│                       │   库存流水    │                                      │
+│                       └──────────────┘                                      │
+│                                                                           │
+│    ┌──────────────┐                                                        │
+│    │   patient    │◀──────────────────────────────────┐                    │
+│    │    患者       │                                    │                    │
+│    └──────────────┘                                    │                    │
+│           │                                             │                    │
+│           │ 1:N                                         │                    │
+│           ▼                                             │                    │
+│    ┌──────────────┐                                    │                    │
+│    │ai_consultation│                                    │                    │
+│    │   AI问诊      │                                    │                    │
+│    └──────────────┘                                    │                    │
+│                                                                             │
+│    ┌──────────────┐                                    │                    │
+│    │  sys_user   │◀───────────────────────────────────┘                    │
+│    │   系统用户    │                                    │                    │
+│    └──────────────┘                                    │                    │
+│           │                                             │                    │
+│           │ N:1                                         │                    │
+│           ▼                                             │                    │
+│    ┌──────────────┐                                    │                    │
+│    │  sys_role    │────────────────────────────────────┘                    │
+│    │   角色       │                                                         │
+│    └──────────────┘                                                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+4.2 核心关联关系
+────────────────────────────────────────────────────────────────────────────────
+
+┌────────────────┬────────────────┬─────────────────────────────────────────┐
+│    主表        │    从表        │    关联关系                              │
+├────────────────┼────────────────┼─────────────────────────────────────────┤
+│  clinic        │  department   │  1:N (一个诊所有多个科室)              │
+│  clinic        │  doctor        │  1:N (一个诊所有多个医生)               │
+│  clinic        │  patient       │  1:N (一个诊所有多个患者)               │
+│  clinic        │  schedule      │  1:N (一个诊所有多个月排班)             │
+│  department    │  doctor        │  1:N (一个科室有多个医生)               │
+│  doctor        │  schedule      │  1:N (一个医生有多条排班)               │
+│  doctor        │  registration │  1:N (一个医生有多个挂号)               │
+│  doctor        │  prescription │  1:N (一个医生开多个处方)               │
+│  patient       │  registration │  1:N (一个患者多次挂号)                 │
+│  patient       │  medical_record│ 1:N (一个患者多份病历)                 │
+│  patient       │  prescription │  1:N (一个患者多个处方)                 │
+│  patient       │  patient_card │  1:N (一个患者多张会员卡)               │
+│  patient       │  order         │  1:N (一个患者多个订单)                 │
+│  registration  │  medical_record│  1:1 (一个挂号对应一份病历)             │
+│  registration  │  prescription  │  1:N (一个挂号可有多个处方)            │
+│  prescription  │  prescription_item│ 1:N (一个处方有多个明细)             │
+│  patient_card  │  card_transaction│ 1:N (一张卡多条流水)                  │
+│  order         │  prescription  │  1:N (一个订单包含多个处方)             │
+│  sys_role      │  sys_user      │  1:N (一个角色有多个用户)               │
+└────────────────┴────────────────┴─────────────────────────────────────────┘
+
+================================================================================
+                        第五部分：索引设计
+================================================================================
+
+5.1 索引设计原则
+────────────────────────────────────────────────────────────────────────────────
+
+【必建索引】
+- 主键索引（自动创建）
+- 唯一索引（uk_开头）
+- 外键索引（关联查询）
+
+【高频查询索引】
+- 根据业务查询场景添加
+
+【索引避坑】
+- 不在低区分度字段建索引（如：性别、状态）
+- 避免过多索引（影响写入性能）
+- 组合索引注意最左前缀原则
+
+5.2 核心索引清单
+────────────────────────────────────────────────────────────────────────────────
+
+┌─────────────────┬──────────────────────────────────────────────────────┐
+│    表名         │    索引字段（不含主键）                                │
+├─────────────────┼──────────────────────────────────────────────────────┤
+│  clinic         │  clinic_code, clinic_name, business_status            │
+│  department     │  clinic_id+dept_code(唯一), clinic_id+dept_type      │
+│  doctor         │  doctor_code(唯一), clinic_id+dept_id, doctor_name   │
+│  patient        │  patient_code(唯一), clinic_id+phone(唯一)            │
+│                 │  openid, miniopenid, clinic_id+member_level           │
+│  registration   │  reg_no(唯一), reg_date+disease_status                │
+│                 │  patient_id+reg_date, doctor_id+reg_date+disease_status│
+│  medical_record │  record_no(唯一), patient_id+visit_date              │
+│                 │  doctor_id+visit_date, diagnosis                      │
+│  prescription   │  prescription_no(唯一), patient_id+create_time       │
+│                 │  doctor_id+create_time, medical_record_id             │
+│                 │  payment_status                                      │
+│  prescription_item│ prescription_id, item_id                          │
+│  patient_card   │  card_no(唯一), patient_id, status, valid_end        │
+│  card_transaction│ card_id+trans_time, patient_id+trans_time            │
+│  order          │  order_no(唯一), patient_id+create_time               │
+│                 │  order_type+payment_status, pay_time                  │
+│  item_info      │  item_code(唯一), item_type                          │
+│                 │  clinic_id+item_type, stock_status                    │
+│  stock          │  item_id+create_time, batch_no, operation_type+create_time│
+│  schedule       │  doctor_id+schedule_date+time_slot_start(唯一)       │
+│                 │  schedule_date+status                               │
+│  ai_consultation│  session_id+created_at, patient_id+session_id        │
+│                 │  registration_id                                     │
+│  sys_user       │  username(唯一), clinic_id, role_id                  │
+│  sys_role       │  role_code(唯一)                                    │
+│  sys_menu       │  parent_id, menu_type                               │
+└─────────────────┴──────────────────────────────────────────────────────┘
+
+================================================================================
+                        第六部分：数据库设计原则
+================================================================================
+
+6.1 表设计原则
+────────────────────────────────────────────────────────────────────────────────
+
+【字段设计】
+1. 主键统一使用 BIGINT 自增
+2. 业务编码使用 VARCHAR，外键使用 BIGINT
+3. 金额统一使用 DECIMAL(10,2)
+4. 百分比统一使用 DECIMAL(5,2) 或 DECIMAL(3,2)
+5. 时间日期使用 DATETIME
+6. 长文本使用 TEXT
+7. JSON 字段使用 JSON 类型
+8. 状态字段使用 TINYINT
+9. 逻辑删除字段 deleted (0未删/1已删)
+10. 所有表必须有 created_at，大多数表需要 updated_at
+
+【约束设计】
+1. 手机号、邮箱等唯一字段加唯一索引
+2. 外键字段确保有对应索引
+3. 金额字段不加外键约束（性能考虑）
+
+6.2 性能优化建议
+────────────────────────────────────────────────────────────────────────────────
+
+【查询优化】
+1. 避免 SELECT *，只查需要的字段
+2. 分页使用延迟关联优化
+3. 合理使用索引覆盖
+4. 避免在索引列上使用函数
+
+【写入优化】
+1. 批量写入使用 INSERT ... VALUES (...), (...), (...)
+2. 大数据量分批写入
+3. 避免在高频写入表上建过多索引
+
+【分库分表建议】
+- 单表数据超过 500 万条考虑分表
+- 单库超过 1TB 考虑分库
+- 建议按 clinic_id 分片
+
+6.3 安全设计
+────────────────────────────────────────────────────────────────────────────────
+
+【密码存储】
+- 使用 BCrypt 加密
+- 盐值随机生成
+
+【SQL 注入防护】
+- 使用预编译 SQL (MyBatis #{})
+- 避免拼接 SQL
+
+【敏感数据】
+- 手机号、身份证号等可显示时脱敏
+- 日志中脱敏处理
+
+【权限控制】
+- 行级数据权限（数据范围）
+- 接口级权限（功能权限）
+
+================================================================================
+                        附录：数据库配置参数
+================================================================================
+
+【MySQL 8.0 推荐配置】
+
+[mysqld]
+# 基础配置
+default-storage-engine=InnoDB
+character-set-server=utf8mb4
+collation-server=utf8mb4_general_ci
+
+# 连接配置
+max_connections=500
+wait_timeout=600
+interactive_timeout=600
+
+# 缓存配置
+innodb_buffer_pool_size=4G
+innodb_log_buffer_size=64M
+
+# 日志配置
+slow_query_log=1
+slow_query_log_file=/var/log/mysql/slow.log
+long_query_time=2
+
+# 线程配置
+innodb_thread_concurrency=16
+thread_pool_size=16
+
+【Redis 配置】
+
+# 缓存配置
+maxmemory=2gb
+maxmemory-policy=allkeys-lru
+
+# 持久化
+save 900 1
+save 300 10
+save 60 10000
+
+================================================================================
+                            文档结束
+================================================================================

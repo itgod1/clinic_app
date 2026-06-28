@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "门诊缴费",
+  "usingComponents": {
+    "empty-data": "../../components/empty-data"
+  }
+}

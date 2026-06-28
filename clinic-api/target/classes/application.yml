@@ -1,0 +1,45 @@
+# 主配置文件 - 用于激活不同的环境配置
+# 使用方式：
+#   开发环境：--spring.profiles.active=dev
+#   生产环境：--spring.profiles.active=prod
+
+spring:
+  profiles:
+    active: dev  # 默认激活开发环境
+
+---
+# 以下是通用配置（所有环境共享）
+server:
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: clinic-api
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.clinic.entity
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+knife4j:
+  enable: true
+  production: false
+  basic:
+    enable: false
+
+# 文件上传配置（可以在各环境中覆盖）
+upload:
+  path: ${UPLOAD_PATH:C:/clinic-uploads}
+  url-prefix: /uploads

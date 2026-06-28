@@ -1,0 +1,1 @@
+import{a7 as a,a4 as e}from"./index-CIHRmZEu.js";const t=s=>a("/admin/user/list",s),d=s=>e("/admin/user/create",s),n=s=>e("/admin/user/update",s),o=s=>e("/admin/user/delete",{userId:s}),c=s=>e("/admin/user/resetPassword",s),u=s=>e("/admin/user/changePassword",s);export{d as a,u as c,o as d,t as g,c as r,n as u};

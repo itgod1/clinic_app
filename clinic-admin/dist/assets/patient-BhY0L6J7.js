@@ -1,0 +1,1 @@
+import{a7 as e,a4 as a}from"./index-CIHRmZEu.js";const i=t=>e("/admin/patient/list",t),s=t=>a("/admin/patient/create",t),p=t=>a("/admin/patient/update",t),d=t=>a("/admin/patient/delete",null,{params:{patientId:t}});export{s as c,d,i as g,p as u};

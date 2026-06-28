@@ -1,0 +1,2497 @@
+================================================================================
+                    口腔诊所SaaS系统 - API接口文档
+                         Version 1.0.0
+================================================================================
+
+【文档说明】
+本接口文档包含四个部分：
+  1. 患者端接口（小程序）
+  2. 医生端接口
+  3. 管理端接口（Web后台）
+  4. AI模块接口
+
+【通用说明】
+- 基础路径：/api
+- 请求格式：application/json
+- 认证方式：Bearer Token (JWT)
+- 响应编码：UTF-8
+- 时间格式：yyyy-MM-dd HH:mm:ss（日期时间）、yyyy-MM-dd（日期）、HH:mm（时间）
+
+【统一响应格式】
+{
+  "code": 200,           // 状态码：200成功，400参数错误，401未授权，403禁止，404未找到，500服务器错误
+  "message": "success",  // 消息
+  "data": {},            // 数据对象
+  "timestamp": 1704067200000  // 时间戳
+}
+
+================================================================================
+                        第一部分：通用接口
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+1.1 登录接口
+────────────────────────────────────────────────────────────────────────────────
+
+【用户登录】
+POST /api/auth/login
+
+请求参数：
+{
+  "username": "string",    // 用户名
+  "password": "string",    // 密码（MD5加密）
+  "loginType": 1           // 登录类型：1小程序 2管理后台
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "登录成功",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expireTime": 1704153600000,
+    "userInfo": {
+      "userId": 1,
+      "username": "admin",
+      "realName": "管理员",
+      "clinicId": 1,
+      "clinicName": "某某口腔诊所",
+      "roleId": 1,
+      "roleName": "诊所管理员",
+      "avatar": "https://xxx.com/avatar.jpg"
+    }
+  }
+}
+
+【用户登出】
+POST /api/auth/logout
+
+请求Headers：
+Authorization: Bearer {token}
+
+响应示例：
+{
+  "code": 200,
+  "message": "登出成功"
+}
+
+【获取验证码】
+GET /api/auth/captcha
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "captchaId": "uuid-xxx",
+    "captchaImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+  }
+}
+
+────────────────────────────────────────────────────────────────────────────────
+1.2 文件上传接口
+────────────────────────────────────────────────────────────────────────────────
+
+【上传文件】
+POST /api/upload/image
+Content-Type: multipart/form-data
+
+请求参数：
+- file: 文件流（必填）
+- bizType: 业务类型（选填，默认为common）
+  - patient：患者头像
+  - medical：病历附件
+  - doctor：医生头像
+  - clinic：诊所资质
+
+响应示例：
+{
+  "code": 200,
+  "message": "上传成功",
+  "data": {
+    "url": "https://cdn.xxx.com/uploads/2024/04/15/xxx.jpg",
+    "fileName": "xxx.jpg",
+    "fileSize": 102400
+  }
+}
+
+【上传多个文件】
+POST /api/upload/images
+
+请求参数：
+- files: 文件流数组
+- bizType: 业务类型
+
+响应示例：
+{
+  "code": 200,
+  "message": "上传成功",
+  "data": [
+    {"url": "https://cdn.xxx.com/1.jpg", "fileName": "1.jpg"},
+    {"url": "https://cdn.xxx.com/2.jpg", "fileName": "2.jpg"}
+  ]
+}
+
+────────────────────────────────────────────────────────────────────────────────
+1.3 数据字典接口
+────────────────────────────────────────────────────────────────────────────────
+
+【获取字典列表】
+GET /api/dict/list
+GET /api/dict/list?dictType=diagnosis_code
+
+请求参数：
+- dictType: 字典类型（选填，不传则返回所有）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "gender": [
+      {"dictCode": "1", "dictLabel": "男"},
+      {"dictCode": "2", "dictLabel": "女"}
+    ],
+    "member_level": [
+      {"dictCode": "1", "dictLabel": "普通会员"},
+      {"dictCode": "2", "dictLabel": "银卡会员"},
+      {"dictCode": "3", "dictLabel": "金卡会员"},
+      {"dictCode": "4", "dictLabel": "钻石会员"}
+    ]
+  }
+}
+
+================================================================================
+                        第二部分：患者端接口（小程序）
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+2.1 患者模块
+────────────────────────────────────────────────────────────────────────────────
+
+【患者注册/登录】
+POST /api/patient/register
+
+请求参数：
+{
+  "phone": "13800138000",       // 手机号（必填）
+  "phoneCode": "123456",        // 短信验证码（必填）
+  "patientName": "张三",         // 姓名（必填）
+  "gender": 1,                   // 性别：1男 2女（必填）
+  "birthday": "1990-01-01",     // 出生日期（必填）
+  "idCard": "110101199001011234", // 身份证号（选填）
+  "allergyHistory": "无",       // 过敏史（选填）
+  "medicalHistory": "无",        // 既往病史（选填）
+  "emergencyContact": "李四",    // 紧急联系人（选填）
+  "emergencyPhone": "13900139000" // 紧急联系电话（选填）
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "注册成功",
+  "data": {
+    "patientId": 10001,
+    "patientCode": "P20240415001",
+    "patientName": "张三",
+    "phone": "138****8000",
+    "memberLevel": 1,
+    "memberLevelName": "普通会员",
+    "balance": 0.00,
+    "points": 0
+  }
+}
+
+【获取患者信息】
+GET /api/patient/info
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "patientId": 10001,
+    "patientCode": "P20240415001",
+    "patientName": "张三",
+    "phone": "138****8000",
+    "gender": 1,
+    "genderName": "男",
+    "birthday": "1990-01-01",
+    "age": 34,
+    "idCard": "110***********1234",
+    "allergyHistory": "无",
+    "medicalHistory": "无",
+    "emergencyContact": "李四",
+    "emergencyPhone": "13900139000",
+    "avatar": "https://xxx.com/avatar.jpg",
+    "memberLevel": 2,
+    "memberLevelName": "银卡会员",
+    "balance": 500.00,
+    "points": 1500
+  }
+}
+
+【更新患者信息】
+POST /api/patient/update
+
+请求参数：
+{
+  "patientName": "张三",         // 姓名
+  "gender": 1,                   // 性别
+  "birthday": "1990-01-01",     // 出生日期
+  "idCard": "110101199001011234", // 身份证号
+  "allergyHistory": "青霉素过敏", // 过敏史
+  "medicalHistory": "",          // 既往病史
+  "emergencyContact": "李四",     // 紧急联系人
+  "emergencyPhone": "13900139000" // 紧急联系电话
+}
+
+【获取患者就诊记录】
+GET /api/patient/records
+
+请求参数：
+- patientId: 患者ID（必填）
+- pageNum: 页码（默认1）
+- pageSize: 每页条数（默认10）
+- startDate: 开始日期（选填，格式yyyy-MM-dd）
+- endDate: 结束日期（选填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "total": 25,
+    "list": [
+      {
+        "recordId": 1001,
+        "recordNo": "MR20240415001",
+        "visitDate": "2024-04-15 14:30:00",
+        "clinicName": "某某口腔诊所",
+        "doctorName": "王医生",
+        "departmentName": "口腔科",
+        "diagnosis": "龋齿",
+        "treatment": "补牙",
+        "status": 4
+      }
+    ]
+  }
+}
+
+【获取就诊记录详情】
+GET /api/patient/record/{recordId}
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "recordId": 1001,
+    "recordNo": "MR20240415001",
+    "visitDate": "2024-04-15 14:30:00",
+    "clinicName": "某某口腔诊所",
+    "doctorName": "王医生",
+    "departmentName": "口腔科",
+    "chiefComplaint": "牙疼3天",
+    "presentIllness": "右下后牙冷热刺激痛",
+    "pastHistory": "无",
+    "allergyRecord": "无",
+    "physicalExam": "右下第一磨牙窝沟龋",
+    "oralExam": "牙龈正常",
+    "diagnosis": "龋齿",
+    "diagnosisCode": "K02.901",
+    "treatmentPlan": "光固化树脂充填",
+    "aiSuggestion": "建议尽快治疗，保持口腔卫生",
+    "attachments": [
+      {"url": "https://xxx.com/xray.jpg", "type": "X光片"}
+    ]
+  }
+}
+
+────────────────────────────────────────────────────────────────────────────────
+2.2 预约挂号模块
+────────────────────────────────────────────────────────────────────────────────
+
+【获取科室列表】
+GET /api/registration/departments
+
+请求参数：
+- clinicId: 诊所ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": [
+    {"deptId": 1, "deptName": "口腔科", "deptType": 1},
+    {"deptId": 2, "deptName": "正畸科", "deptType": 2},
+    {"deptId": 3, "deptName": "种植科", "deptType": 3},
+    {"deptId": 4, "deptName": "儿童牙科", "deptType": 4}
+  ]
+}
+
+【获取医生列表】
+GET /api/registration/doctors
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- deptId: 科室ID（选填）
+- scheduleDate: 排班日期（选填，格式yyyy-MM-dd）
+
+响应示例：
+{
+  "code": 200,
+  "data": [
+    {
+      "doctorId": 1,
+      "doctorName": "王建国",
+      "title": "主任医师",
+      "specialty": "种植牙、正畸",
+      "avatar": "https://xxx.com/avatar1.jpg",
+      "rating": 4.90,
+      "serviceCount": 3500,
+      "introduction": "20年临床经验..."
+    }
+  ]
+}
+
+【获取医生排班】
+GET /api/registration/schedules
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- doctorId: 医生ID（必填）
+- startDate: 开始日期（必填，格式yyyy-MM-dd）
+- endDate: 结束日期（必填，最多7天）
+
+响应示例：
+{
+  "code": 200,
+  "data": [
+    {
+      "scheduleDate": "2024-04-15",
+      "timeSlots": [
+        {
+          "scheduleId": 101,
+          "timeSlotStart": "09:00",
+          "timeSlotEnd": "09:30",
+          "totalQuota": 10,
+          "usedQuota": 3,
+          "remainQuota": 7,
+          "status": 1
+        },
+        {
+          "scheduleId": 102,
+          "timeSlotStart": "09:30",
+          "timeSlotEnd": "10:00",
+          "totalQuota": 10,
+          "usedQuota": 10,
+          "remainQuota": 0,
+          "status": 2
+        }
+      ]
+    }
+  ]
+}
+
+【创建挂号预约】
+POST /api/registration/create
+
+请求参数：
+{
+  "clinicId": 1,                 // 诊所ID（必填）
+  "patientId": 10001,            // 患者ID（必填）
+  "doctorId": 1,                  // 医生ID（必填）
+  "deptId": 1,                    // 科室ID（必填）
+  "scheduleId": 101,             // 排班ID（必填）
+  "visitType": 1,                 // 就诊类型：1初诊 2复诊 3急诊（必填）
+  "chiefComplaint": "牙疼3天",    // 主诉（选填）
+  "aiPreDiagnosis": {}            // AI预问诊结果JSON（选填）
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "预约成功",
+  "data": {
+    "regId": 1001,
+    "regNo": "GH20240415001",
+    "regDate": "2024-04-15",
+    "regTime": "09:00",
+    "queueNo": 5,
+    "clinicName": "某某口腔诊所",
+    "doctorName": "王建国",
+    "deptName": "口腔科",
+    "address": "北京市朝阳区xxx路xx号",
+    "phone": "010-12345678"
+  }
+}
+
+【获取我的预约列表】
+GET /api/registration/myList
+
+请求参数：
+- patientId: 患者ID（必填）
+- status: 状态（选填，1已挂号 2已签到 3就诊中 4已完成 5已取消 6已退号）
+- pageNum: 页码（默认1）
+- pageSize: 每页条数（默认10）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "total": 5,
+    "list": [
+      {
+        "regId": 1001,
+        "regNo": "GH20240415001",
+        "regDate": "2024-04-15",
+        "regTime": "09:00",
+        "queueNo": 5,
+        "clinicName": "某某口腔诊所",
+        "doctorName": "王建国",
+        "deptName": "口腔科",
+        "visitType": 1,
+        "visitTypeName": "初诊",
+        "status": 1,
+        "statusName": "已挂号",
+        "canCancel": true,
+        "cancelDeadline": "2024-04-15 08:00:00"
+      }
+    ]
+  }
+}
+
+【取消预约】
+POST /api/registration/cancel
+
+请求参数：
+{
+  "regId": 1001,                  // 挂号ID（必填）
+  "patientId": 10001,            // 患者ID（必填）
+  "cancelReason": "临时有事"      // 取消原因（选填）
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "取消成功"
+}
+
+【到店签到】
+POST /api/registration/checkIn
+
+请求参数：
+{
+  "regId": 1001,                  // 挂号ID（必填）
+  "patientId": 10001             // 患者ID（必填）
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "签到成功",
+  "data": {
+    "queueNo": 5,
+    "currentQueue": 3,
+    "estimatedWaitTime": 15,
+    "status": 2
+  }
+}
+
+────────────────────────────────────────────────────────────────────────────────
+2.3 排队候诊模块
+────────────────────────────────────────────────────────────────────────────────
+
+【获取排队状态】
+GET /api/queue/status
+
+请求参数：
+- patientId: 患者ID（必填）
+- regId: 挂号ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "regId": 1001,
+    "queueNo": 5,
+    "currentQueue": 3,
+    "waitingCount": 2,
+    "estimatedWaitTime": 15,
+    "status": 2,
+    "statusName": "候诊中",
+    "doctorName": "王建国",
+    "clinicName": "某某口腔诊所"
+  }
+}
+
+【获取排队列表（诊所实时排队）】
+GET /api/queue/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- regDate: 日期（选填，默认当天）
+
+响应示例：
+{
+  "code": 200,
+  "data": [
+    {
+      "regId": 1001,
+      "queueNo": 5,
+      "patientName": "张*",
+      "doctorName": "王建国",
+      "status": 2,
+      "statusName": "候诊中",
+      "registeredTime": "2024-04-15 08:30:00"
+    }
+  ]
+}
+
+────────────────────────────────────────────────────────────────────────────────
+2.4 处方与缴费模块
+────────────────────────────────────────────────────────────────────────────────
+
+【获取待缴费处方】
+GET /api/prescription/unpaid
+
+请求参数：
+- patientId: 患者ID（必填）
+- pageNum: 页码（默认1）
+- pageSize: 每页条数（默认10）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "total": 2,
+    "totalAmount": 850.00,
+    "list": [
+      {
+        "prescriptionId": 101,
+        "prescriptionNo": "CF20240415001",
+        "createTime": "2024-04-15 10:30:00",
+        "doctorName": "王建国",
+        "diagnosis": "龋齿",
+        "totalAmount": 350.00,
+        "discountAmount": 0.00,
+        "actualAmount": 350.00,
+        "paymentStatus": 0,
+        "statusName": "待缴费"
+      }
+    ]
+  }
+}
+
+【获取处方详情】
+GET /api/prescription/{prescriptionId}
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "prescriptionId": 101,
+    "prescriptionNo": "CF20240415001",
+    "prescriptionType": 1,
+    "prescriptionTypeName": "西药处方",
+    "createTime": "2024-04-15 10:30:00",
+    "doctorName": "王建国",
+    "departmentName": "口腔科",
+    "diagnosis": "龋齿",
+    "items": [
+      {
+        "itemType": 1,
+        "itemTypeName": "药品",
+        "itemName": "布洛芬缓释胶囊",
+        "spec": "0.3g*20粒",
+        "unit": "盒",
+        "quantity": 1,
+        "unitPrice": 25.00,
+        "subtotal": 25.00,
+        "usage": "口服",
+        "frequency": "每日2次",
+        "duration": "3天"
+      },
+      {
+        "itemType": 2,
+        "itemTypeName": "治疗",
+        "itemName": "光固化树脂充填",
+        "spec": "单颗",
+        "unit": "颗",
+        "quantity": 1,
+        "unitPrice": 300.00,
+        "subtotal": 300.00
+      }
+    ],
+    "totalAmount": 350.00,
+    "discountAmount": 0.00,
+    "actualAmount": 350.00,
+    "paymentStatus": 0,
+    "statusName": "待缴费"
+  }
+}
+
+【创建订单并支付】
+POST /api/order/pay
+
+请求参数：
+{
+  "patientId": 10001,            // 患者ID（必填）
+  "orderType": 2,                // 订单类型：1挂号 2处方 3会员卡 4套餐（必填）
+  "relatedId": 101,              // 关联ID（处方ID或挂号ID）（必填）
+  "paymentMethod": 1,            // 支付方式：1微信 2支付宝 3现金 4医保 5余额（必填）
+  "useBalance": false,           // 是否使用余额（选填）
+  "couponId": ""                 // 优惠券ID（选填）
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "支付成功",
+  "data": {
+    "orderId": 1001,
+    "orderNo": "ORDER202404151001",
+    "totalAmount": 350.00,
+    "discountAmount": 0.00,
+    "payAmount": 350.00,
+    "paymentStatus": 1,
+    "paymentStatusName": "已支付"
+  }
+}
+
+【使用会员卡余额支付】
+POST /api/order/payWithCard
+
+请求参数：
+{
+  "patientId": 10001,
+  "cardId": 1,                    // 会员卡ID（必填）
+  "orderType": 2,
+  "relatedId": 101
+}
+
+【获取支付结果】
+GET /api/order/payResult
+
+请求参数：
+- orderId: 订单ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "orderId": 1001,
+    "orderNo": "ORDER202404151001",
+    "paymentStatus": 1,
+    "paymentStatusName": "已支付",
+    "payTime": "2024-04-15 10:35:00"
+  }
+}
+
+【获取订单列表】
+GET /api/order/list
+
+请求参数：
+- patientId: 患者ID（必填）
+- status: 支付状态（选填，0待支付 1已支付 2已退款 3已取消）
+- pageNum: 页码
+- pageSize: 每页条数
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "total": 10,
+    "list": [
+      {
+        "orderId": 1001,
+        "orderNo": "ORDER202404151001",
+        "orderType": 2,
+        "orderTypeName": "处方缴费",
+        "totalAmount": 350.00,
+        "payAmount": 350.00,
+        "paymentMethod": 1,
+        "paymentMethodName": "微信支付",
+        "paymentStatus": 1,
+        "paymentStatusName": "已支付",
+        "payTime": "2024-04-15 10:35:00"
+      }
+    ]
+  }
+}
+
+────────────────────────────────────────────────────────────────────────────────
+2.5 会员卡模块
+────────────────────────────────────────────────────────────────────────────────
+
+【获取会员卡列表】
+GET /api/card/list
+
+请求参数：
+- patientId: 患者ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": [
+    {
+      "cardId": 1,
+      "cardNo": "CK20240100001",
+      "cardType": 1,
+      "cardTypeName": "余额卡",
+      "cardName": "银卡会员",
+      "balance": 500.00,
+      "totalAmount": 1000.00,
+      "giveAmount": 50.00,
+      "discountRate": 0.90,
+      "validStart": "2024-01-01",
+      "validEnd": "2025-12-31",
+      "status": 1,
+      "statusName": "正常"
+    }
+  ]
+}
+
+【办理会员卡】
+POST /api/card/create
+
+请求参数：
+{
+  "patientId": 10001,            // 患者ID（必填）
+  "cardType": 1,                  // 卡类型：1余额卡 2套餐卡 3折扣卡（必填）
+  "cardName": "金卡会员",         // 卡名称（必填）
+  "purchaseAmount": 5000.00      // 购买金额（必填）
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "办理成功",
+  "data": {
+    "cardId": 2,
+    "cardNo": "CK20240415002",
+    "cardType": 1,
+    "cardName": "金卡会员",
+    "balance": 5250.00,
+    "totalAmount": 5000.00,
+    "giveAmount": 250.00,
+    "discountRate": 0.85,
+    "validEnd": "2025-12-31"
+  }
+}
+
+【会员卡充值】
+POST /api/card/recharge
+
+请求参数：
+{
+  "patientId": 10001,
+  "cardId": 1,
+  "rechargeAmount": 1000.00
+}
+
+【获取会员卡套餐列表】
+GET /api/card/packages
+
+请求参数：
+- clinicId: 诊所ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": [
+    {
+      "packageId": 1,
+      "packageName": "银卡会员",
+      "originalPrice": 0,
+      "currentPrice": 0,
+      "description": "享受9折优惠",
+      "benefits": ["门诊检查9折", "优先预约", "生日礼遇"]
+    }
+  ]
+}
+
+────────────────────────────────────────────────────────────────────────────────
+2.6 消息通知模块
+────────────────────────────────────────────────────────────────────────────────
+
+【获取消息列表】
+GET /api/message/list
+
+请求参数：
+- patientId: 患者ID（必填）
+- msgType: 消息类型（选填，1系统通知 2预约提醒 3缴费通知 4复诊提醒 5健康科普）
+- readStatus: 已读状态（选填，0未读 1已读）
+- pageNum: 页码
+- pageSize: 每页条数
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "total": 15,
+    "unreadCount": 3,
+    "list": [
+      {
+        "msgId": 1,
+        "msgType": 2,
+        "msgTypeName": "预约提醒",
+        "title": "明日就诊提醒",
+        "content": "您已预约明日(4月16日)上午9:00王建国医生的口腔科门诊，请准时到店。",
+        "sendTime": "2024-04-15 20:00:00",
+        "readStatus": 0,
+        "readTime": null
+      }
+    ]
+  }
+}
+
+【标记消息已读】
+POST /api/message/read
+
+请求参数：
+{
+  "patientId": 10001,
+  "msgIds": [1, 2, 3]            // 消息ID数组
+}
+
+【标记全部已读】
+POST /api/message/readAll
+
+请求参数：
+{
+  "patientId": 10001
+}
+
+【获取未读消息数量】
+GET /api/message/unreadCount
+
+请求参数：
+- patientId: 患者ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "totalUnread": 5,
+    "types": {
+      "1": 1,
+      "2": 2,
+      "3": 1,
+      "4": 1
+    }
+  }
+}
+
+================================================================================
+                        第三部分：医生端接口
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+3.1 医生工作台
+────────────────────────────────────────────────────────────────────────────────
+
+【获取今日患者列表】
+GET /api/doctor/patients/today
+
+请求参数：
+- doctorId: 医生ID（必填）
+- status: 就诊状态（选填，1已挂号 2已签到 3就诊中 4已完成）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "todayDate": "2024-04-15",
+    "totalPatients": 15,
+    "waitingCount": 5,
+    "inTreatmentCount": 2,
+    "finishedCount": 8,
+    "list": [
+      {
+        "regId": 1001,
+        "regNo": "GH20240415001",
+        "queueNo": 5,
+        "patientName": "张三",
+        "patientPhone": "138****8000",
+        "visitType": 1,
+        "visitTypeName": "初诊",
+        "regTime": "09:00",
+        "status": 2,
+        "statusName": "候诊中",
+        "chiefComplaint": "牙疼3天",
+        "aiPreDiagnosis": {
+          "symptoms": ["牙疼", "冷刺激加重"],
+          "possibleDisease": "龋齿",
+          "urgencyLevel": 2
+        },
+        "registeredTime": "2024-04-15 08:30:00"
+      }
+    ]
+  }
+}
+
+【获取挂号详情】
+GET /api/doctor/registration/{regId}
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "regId": 1001,
+    "regNo": "GH20240415001",
+    "patientId": 10001,
+    "patientName": "张三",
+    "patientPhone": "138****8000",
+    "patientCode": "P20240100001",
+    "gender": 1,
+    "genderName": "男",
+    "age": 34,
+    "allergyHistory": "无",
+    "medicalHistory": "无",
+    "visitType": 1,
+    "visitTypeName": "初诊",
+    "regTime": "09:00",
+    "queueNo": 5,
+    "status": 2,
+    "statusName": "候诊中",
+    "chiefComplaint": "牙疼3天",
+    "aiPreDiagnosis": {...}
+  }
+}
+
+【叫号】
+POST /api/doctor/queue/call
+
+请求参数：
+{
+  "regId": 1001,
+  "doctorId": 1
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "叫号成功"
+}
+
+【完成就诊】
+POST /api/doctor/queue/finish
+
+请求参数：
+{
+  "regId": 1001,
+  "doctorId": 1
+}
+
+────────────────────────────────────────────────────────────────────────────────
+3.2 病历模块
+────────────────────────────────────────────────────────────────────────────────
+
+【创建病历】
+POST /api/doctor/medical/create
+
+请求参数：
+{
+  "clinicId": 1,                  // 诊所ID（必填）
+  "registrationId": 1001,         // 挂号ID（必填）
+  "patientId": 10001,             // 患者ID（必填）
+  "doctorId": 1,                  // 医生ID（必填）
+  "chiefComplaint": "牙疼3天",    // 主诉（必填）
+  "presentIllness": "右下后牙...", // 现病史（选填）
+  "pastHistory": "无",            // 既往史（选填）
+  "allergyRecord": "无",           // 过敏史（选填）
+  "physicalExam": "右下第一磨牙...", // 体格检查（选填）
+  "oralExam": "牙龈正常，无红肿",   // 口腔检查（选填）
+  "diagnosis": "龋齿",            // 诊断（必填）
+  "diagnosisCode": "K02.901",    // 诊断编码（选填）
+  "diseaseDesc": "右下第一磨牙窝沟龋，深及牙本质中层", // 病情描述（选填）
+  "treatmentPlan": "光固化树脂充填，必要时根管治疗", // 治疗计划（选填）
+  "treatmentNote": "注意口腔卫生...", // 治疗备注（选填）
+  "prognosis": "良好",            // 预后（选填）
+  "attachmentUrls": ["https://xxx.com/xray.jpg"]  // 附件URLs（选填）
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "病历创建成功",
+  "data": {
+    "recordId": 1001,
+    "recordNo": "MR20240415001"
+  }
+}
+
+【更新病历】
+POST /api/doctor/medical/update
+
+【获取病历详情】
+GET /api/doctor/medical/{recordId}
+
+【获取患者历史病历】
+GET /api/doctor/medical/history
+
+请求参数：
+- patientId: 患者ID（必填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+────────────────────────────────────────────────────────────────────────────────
+3.3 处方模块
+────────────────────────────────────────────────────────────────────────────────
+
+【开具处方】
+POST /api/doctor/prescription/create
+
+请求参数：
+{
+  "clinicId": 1,                  // 诊所ID（必填）
+  "medicalRecordId": 1001,        // 病历ID（必填）
+  "patientId": 10001,             // 患者ID（必填）
+  "doctorId": 1,                   // 医生ID（必填）
+  "prescriptionType": 1,           // 处方类型：1西药 2中药 3检查 4治疗（必填）
+  "diagnosis": "龋齿",            // 临床诊断（必填）
+  "items": [                       // 处方明细（必填，至少一条）
+    {
+      "itemId": 1,                 // 项目ID
+      "itemType": 1,               // 项目类型：1药品 2检查 3治疗 4材料（必填）
+      "itemCode": "D001",          // 项目编码
+      "itemName": "布洛芬缓释胶囊", // 项目名称（必填）
+      "spec": "0.3g*20粒",         // 规格
+      "unit": "盒",                // 单位
+      "quantity": 1,               // 数量（必填）
+      "unitPrice": 25.00,          // 单价（必填）
+      "subtotal": 25.00,           // 小计
+      "usage": "口服",             // 用法用量（药品必填）
+      "frequency": "每日2次",      // 频率
+      "duration": "3天",           // 疗程
+      "route": "口服"              // 给药途径
+    },
+    {
+      "itemType": 2,
+      "itemName": "光固化树脂充填",
+      "spec": "单颗",
+      "unit": "颗",
+      "quantity": 1,
+      "unitPrice": 300.00,
+      "subtotal": 300.00
+    }
+  ],
+  "notes": "注意口腔卫生，定期复查" // 备注
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "处方开具成功",
+  "data": {
+    "prescriptionId": 101,
+    "prescriptionNo": "CF20240415001",
+    "totalAmount": 325.00,
+    "actualAmount": 325.00
+  }
+}
+
+【获取处方列表】
+GET /api/doctor/prescription/list
+
+请求参数：
+- doctorId: 医生ID（必填）
+- date: 日期（选填，格式yyyy-MM-dd）
+- status: 状态（选填，0未缴费 1已缴费 2已退费）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【作废处方】
+POST /api/doctor/prescription/cancel
+
+请求参数：
+{
+  "prescriptionId": 101,
+  "doctorId": 1,
+  "cancelReason": "开方有误"
+}
+
+────────────────────────────────────────────────────────────────────────────────
+3.4 AI辅助模块
+────────────────────────────────────────────────────────────────────────────────
+
+【获取AI诊断建议】
+GET /api/doctor/ai/diagnosis/suggest
+
+请求参数：
+- patientId: 患者ID（必填）
+- medicalRecordId: 病历ID（选填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "aiSuggestion": "根据患者症状和检查结果，建议：1.光固化树脂充填 2.如疼痛加剧，考虑根管治疗",
+    "similarCases": [
+      {"caseDesc": "类似病例1", "treatment": "树脂充填", "outcome": "治愈"},
+      {"caseDesc": "类似病例2", "treatment": "根管治疗+牙冠", "outcome": "治愈"}
+    ],
+    "warnings": ["注意患者可能对某些药物过敏"],
+    "references": [
+      {"title": "口腔内科学", "page": "第123页"},
+      {"title": "临床诊疗指南", "chapter": "第三章"}
+    ]
+  }
+}
+
+【获取AI预问诊报告】
+GET /api/doctor/ai/preDiagnosis
+
+请求参数：
+- registrationId: 挂号ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "sessionId": "ai-session-xxx",
+    "patientId": 10001,
+    "consultationType": 1,
+    "symptoms": {
+      "chiefComplaint": "牙疼",
+      "location": "右下后牙",
+      "duration": "3天",
+      "severity": "中度",
+      "aggravatingFactors": ["冷刺激", "吃东西"],
+      "alleviatingFactors": ["无"],
+      "accompanyingSymptoms": ["无"]
+    },
+    "possibleDiseases": [
+      {"name": "龋齿", "probability": 0.85},
+      {"name": "牙本质敏感", "probability": 0.60},
+      {"name": "牙髓炎", "probability": 0.30}
+    ],
+    "urgencyLevel": 2,
+    "urgencyLevelName": "较急",
+    "suggestion": "建议口腔检查，必要时X光片",
+    "warnings": [],
+    "conversationHistory": [
+      {"role": "ai", "content": "您好，我是AI口腔助手..."},
+      {"role": "user", "content": "牙疼3天了"},
+      {"role": "ai", "content": "请问是哪个位置的牙齿疼..."}
+    ]
+  }
+}
+
+────────────────────────────────────────────────────────────────────────────────
+3.5 排班管理模块
+────────────────────────────────────────────────────────────────────────────────
+
+【获取医生排班】
+GET /api/doctor/schedule/mySchedule
+
+请求参数：
+- doctorId: 医生ID（必填）
+- startDate: 开始日期（必填）
+- endDate: 结束日期（必填）
+
+【设置出诊状态】
+POST /api/doctor/schedule/setStatus
+
+请求参数：
+{
+  "doctorId": 1,
+  "scheduleDate": "2024-04-15",
+  "status": 2  // 1可预约 2休息
+}
+
+【设置号源】
+POST /api/doctor/schedule/setQuota
+
+请求参数：
+{
+  "doctorId": 1,
+  "scheduleDate": "2024-04-15",
+  "timeSlots": [
+    {"timeSlotStart": "09:00", "timeSlotEnd": "09:30", "totalQuota": 10},
+    {"timeSlotStart": "09:30", "timeSlotEnd": "10:00", "totalQuota": 10}
+  ]
+}
+
+================================================================================
+                        第四部分：管理端接口（Web后台）
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+4.1 诊所管理
+────────────────────────────────────────────────────────────────────────────────
+
+【获取诊所信息】
+GET /api/admin/clinic/info
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "clinicId": 1,
+    "clinicName": "某某口腔诊所",
+    "clinicCode": "CK20240001",
+    "address": "北京市朝阳区xxx路xx号",
+    "contactPhone": "010-12345678",
+    "logoUrl": "https://xxx.com/logo.jpg",
+    "businessStatus": 1,
+    "serviceStart": "08:00",
+    "serviceEnd": "18:00"
+  }
+}
+
+【更新诊所信息】
+POST /api/admin/clinic/update
+
+请求参数：
+{
+  "clinicName": "某某口腔诊所",
+  "address": "北京市朝阳区xxx路xx号",
+  "contactPhone": "010-12345678",
+  "logoUrl": "https://xxx.com/logo.jpg",
+  "serviceStart": "08:00",
+  "serviceEnd": "18:00"
+}
+
+【科室管理-列表】
+GET /api/admin/department/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+
+【科室管理-新增】
+POST /api/admin/department/create
+
+请求参数：
+{
+  "clinicId": 1,
+  "deptName": "种植科",
+  "deptCode": "PLANT",
+  "deptType": 3,
+  "sortOrder": 1
+}
+
+【科室管理-更新】
+POST /api/admin/department/update
+
+【科室管理-删除】
+POST /api/admin/department/delete
+
+请求参数：
+{
+  "deptId": 1
+}
+
+────────────────────────────────────────────────────────────────────────────────
+4.2 医生管理
+────────────────────────────────────────────────────────────────────────────────
+
+【医生列表】
+GET /api/admin/doctor/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- deptId: 科室ID（选填）
+- keyword: 关键词（选填，姓名/工号）
+- status: 状态（选填，1在岗 2休息 3离职）
+- pageNum: 页码
+- pageSize: 每页条数
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "total": 10,
+    "list": [
+      {
+        "doctorId": 1,
+        "doctorCode": "D001",
+        "doctorName": "王建国",
+        "title": "主任医师",
+        "specialty": "种植牙、正畸",
+        "deptId": 1,
+        "deptName": "口腔科",
+        "phone": "13800138001",
+        "avatar": "https://xxx.com/avatar.jpg",
+        "workStatus": 1,
+        "serviceCount": 3500,
+        "rating": 4.90
+      }
+    ]
+  }
+}
+
+【添加医生】
+POST /api/admin/doctor/create
+
+请求参数：
+{
+  "clinicId": 1,
+  "doctorName": "王建国",
+  "doctorCode": "D001",
+  "title": "主任医师",
+  "specialty": "种植牙、正畸",
+  "deptId": 1,
+  "phone": "13800138001",
+  "introduction": "20年临床经验..."
+}
+
+【更新医生信息】
+POST /api/admin/doctor/update
+
+【删除医生】
+POST /api/admin/doctor/delete
+
+请求参数：
+{
+  "doctorId": 1
+}
+
+【批量设置排班】
+POST /api/admin/schedule/batchSet
+
+请求参数：
+{
+  "clinicId": 1,
+  "schedules": [
+    {
+      "doctorId": 1,
+      "scheduleDate": "2024-04-15",
+      "timeSlots": [
+        {"timeSlotStart": "09:00", "timeSlotEnd": "09:30", "totalQuota": 10},
+        {"timeSlotStart": "09:30", "timeSlotEnd": "10:00", "totalQuota": 10}
+      ]
+    }
+  ]
+}
+
+【获取排班列表】
+GET /api/admin/schedule/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- doctorId: 医生ID（选填）
+- startDate: 开始日期（必填）
+- endDate: 结束日期（必填）
+
+────────────────────────────────────────────────────────────────────────────────
+4.3 患者管理
+────────────────────────────────────────────────────────────────────────────────
+
+【患者列表】
+GET /api/admin/patient/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- keyword: 关键词（选填，姓名/手机号/患者编号）
+- memberLevel: 会员等级（选填）
+- registerSource: 注册来源（选填，1小程序 2前台 3App）
+- startDate: 注册开始日期（选填）
+- endDate: 注册结束日期（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "total": 500,
+    "list": [
+      {
+        "patientId": 10001,
+        "patientCode": "P20240100001",
+        "patientName": "张三",
+        "phone": "138****8000",
+        "gender": 1,
+        "genderName": "男",
+        "age": 34,
+        "memberLevel": 2,
+        "memberLevelName": "银卡会员",
+        "balance": 500.00,
+        "points": 1500,
+        "registerSource": 1,
+        "lastVisitDate": "2024-04-15",
+        "visitCount": 5,
+        "status": 1
+      }
+    ]
+  }
+}
+
+【患者详情】
+GET /api/admin/patient/{patientId}
+
+【更新患者状态（黑名单）】
+POST /api/admin/patient/updateStatus
+
+请求参数：
+{
+  "patientId": 10001,
+  "status": 2  // 1正常 2黑名单
+}
+
+【患者合并】
+POST /api/admin/patient/merge
+
+请求参数：
+{
+  "mainPatientId": 10001,       // 主患者ID
+  "mergePatientId": 10002       // 被合并患者ID
+}
+
+【导出患者数据】
+GET /api/admin/patient/export
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- keyword: 关键词（选填）
+
+────────────────────────────────────────────────────────────────────────────────
+4.4 挂号管理
+────────────────────────────────────────────────────────────────────────────────
+
+【挂号列表】
+GET /api/admin/registration/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- regDate: 挂号日期（选填）
+- doctorId: 医生ID（选填）
+- status: 状态（选填）
+- keyword: 关键词（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【退号】
+POST /api/admin/registration/refund
+
+请求参数：
+{
+  "regId": 1001,
+  "operatorId": 1,
+  "refundReason": "患者要求"
+}
+
+【改号】
+POST /api/admin/registration/change
+
+请求参数：
+{
+  "regId": 1001,
+  "newDoctorId": 2,
+  "newScheduleId": 201,
+  "operatorId": 1
+}
+
+────────────────────────────────────────────────────────────────────────────────
+4.5 病历管理
+────────────────────────────────────────────────────────────────────────────────
+
+【病历列表】
+GET /api/admin/medical/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- doctorId: 医生ID（选填）
+- startDate: 开始日期（选填）
+- endDate: 结束日期（选填）
+- keyword: 关键词（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【病历详情】
+GET /api/admin/medical/{recordId}
+
+【补打病历】
+POST /api/admin/medical/print
+
+请求参数：
+{
+  "recordId": 1001
+}
+
+────────────────────────────────────────────────────────────────────────────────
+4.6 处方管理
+────────────────────────────────────────────────────────────────────────────────
+
+【处方列表】
+GET /api/admin/prescription/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- doctorId: 医生ID（选填）
+- prescriptionType: 处方类型（选填）
+- paymentStatus: 缴费状态（选填，0未缴费 1已缴费 2已退费）
+- startDate: 开始日期（选填）
+- endDate: 结束日期（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【处方详情】
+GET /api/admin/prescription/{prescriptionId}
+
+【退处方】
+POST /api/admin/prescription/refund
+
+请求参数：
+{
+  "prescriptionId": 101,
+  "operatorId": 1,
+  "refundReason": "患者要求"
+}
+
+【发药确认】
+POST /api/admin/prescription/dispense
+
+请求参数：
+{
+  "prescriptionId": 101,
+  "operatorId": 1,
+  "remark": "正常发药"
+}
+
+────────────────────────────────────────────────────────────────────────────────
+4.7 收费管理
+────────────────────────────────────────────────────────────────────────────────
+
+【收银台-待缴费列表】
+GET /api/admin/cashier/unpaid
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【收银】
+POST /api/admin/cashier/pay
+
+请求参数：
+{
+  "patientId": 10001,
+  "orderId": 1001,
+  "paymentMethod": 1,            // 支付方式
+  "operatorId": 1,
+  "remark": ""
+}
+
+【退费】
+POST /api/admin/cashier/refund
+
+请求参数：
+{
+  "orderId": 1001,
+  "operatorId": 1,
+  "refundReason": "患者要求",
+  "refundAmount": 100.00
+}
+
+【优惠减免】
+POST /api/admin/cashier/discount
+
+请求参数：
+{
+  "orderId": 1001,
+  "discountAmount": 50.00,
+  "discountReason": "会员优惠",
+  "operatorId": 1
+}
+
+────────────────────────────────────────────────────────────────────────────────
+4.8 药库管理
+────────────────────────────────────────────────────────────────────────────────
+
+【药品目录列表】
+GET /api/admin/item/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- itemType: 项目类型（选填，1药品 2检查 3治疗 4材料 5挂号费）
+- keyword: 关键词（选填）
+- status: 状态（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【添加药品/项目】
+POST /api/admin/item/create
+
+请求参数：
+{
+  "clinicId": 1,
+  "itemCode": "D001",
+  "itemName": "布洛芬缓释胶囊",
+  "itemType": 1,
+  "categoryId": 1,
+  "unit": "盒",
+  "spec": "0.3g*20粒",
+  "manufacturer": "某某制药",
+  "barcode": "6901234567890",
+  "purchasePrice": 15.00,
+  "retailPrice": 25.00,
+  "memberPrice": 22.00,
+  "stock": 100,
+  "lowStockAlert": 10,
+  "usage": "口服",
+  "contraindication": "对布洛芬过敏者禁用"
+}
+
+【更新药品/项目】
+POST /api/admin/item/update
+
+【批量导入药品】
+POST /api/admin/item/import
+Content-Type: multipart/form-data
+
+请求参数：
+- file: Excel文件
+
+【调价】
+POST /api/admin/item/updatePrice
+
+请求参数：
+{
+  "itemId": 1,
+  "retailPrice": 28.00,
+  "memberPrice": 25.00,
+  "reason": "成本上涨"
+}
+
+【入库管理】
+GET /api/admin/stock/inList
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- startDate: 开始日期（选填）
+- endDate: 结束日期（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【入库】
+POST /api/admin/stock/in
+
+请求参数：
+{
+  "clinicId": 1,
+  "itemId": 1,
+  "batchNo": "PC20240415001",
+  "quantity": 100,
+  "unitPrice": 15.00,
+  "totalAmount": 1500.00,
+  "supplier": "某某医药公司",
+  "operatorId": 1,
+  "remark": ""
+}
+
+【出库管理】
+GET /api/admin/stock/outList
+
+【出库】
+POST /api/admin/stock/out
+
+请求参数：
+{
+  "clinicId": 1,
+  "itemId": 1,
+  "quantity": 10,
+  "operationType": 4,           // 操作类型：1采购入库 2退货 3领用 4销售 5盘点调整
+  "relatedOrderNo": "ORDER202404151001",
+  "operatorId": 1,
+  "remark": ""
+}
+
+【库存查询】
+GET /api/admin/stock/query
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- keyword: 关键词（选填）
+- lowStockAlert: 是否仅显示库存预警（选填，true/false）
+- pageNum: 页码
+- pageSize: 每页条数
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "total": 50,
+    "list": [
+      {
+        "itemId": 1,
+        "itemCode": "D001",
+        "itemName": "布洛芬缓释胶囊",
+        "spec": "0.3g*20粒",
+        "unit": "盒",
+        "stock": 85,
+        "lowStockAlert": 10,
+        "isLowStock": false,
+        "lastInTime": "2024-04-10",
+        "lastOutTime": "2024-04-15"
+      }
+    ]
+  }
+}
+
+【库存盘点】
+POST /api/admin/stock/check
+
+请求参数：
+{
+  "clinicId": 1,
+  "operatorId": 1,
+  "items": [
+    {"itemId": 1, "actualStock": 80, "remark": "少了5盒"},
+    {"itemId": 2, "actualStock": 50, "remark": ""}
+  ]
+}
+
+────────────────────────────────────────────────────────────────────────────────
+4.9 会员管理
+────────────────────────────────────────────────────────────────────────────────
+
+【会员列表】
+GET /api/admin/member/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- memberLevel: 会员等级（选填）
+- keyword: 关键词（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【办理会员卡】
+POST /api/admin/member/createCard
+
+请求参数：
+{
+  "clinicId": 1,
+  "patientId": 10001,
+  "cardType": 1,
+  "cardName": "金卡会员",
+  "purchaseAmount": 5000.00,
+  "giveAmount": 250.00,
+  "discountRate": 0.85,
+  "validYears": 2,
+  "operatorId": 1
+}
+
+【会员充值】
+POST /api/admin/member/recharge
+
+请求参数：
+{
+  "cardId": 1,
+  "rechargeAmount": 1000.00,
+  "giveAmount": 50.00,
+  "operatorId": 1
+}
+
+【会员卡消费】
+POST /api/admin/member/consume
+
+请求参数：
+{
+  "cardId": 1,
+  "amount": 350.00,
+  "orderNo": "ORDER202404151001",
+  "operatorId": 1
+}
+
+【会员卡退款】
+POST /api/admin/member/refund
+
+请求参数：
+{
+  "cardId": 1,
+  "refundAmount": 100.00,
+  "orderNo": "ORDER202404151001",
+  "operatorId": 1
+}
+
+【会员卡升级/降级】
+POST /api/admin/member/changeLevel
+
+请求参数：
+{
+  "cardId": 1,
+  "newLevel": 3,
+  "operatorId": 1
+}
+
+────────────────────────────────────────────────────────────────────────────────
+4.10 统计报表
+────────────────────────────────────────────────────────────────────────────────
+
+【工作台统计】
+GET /api/admin/report/dashboard
+
+请求参数：
+- clinicId: 诊所ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "todayDate": "2024-04-15",
+    "todayRegCount": 45,
+    "todayRegChange": 12,
+    "waitingCount": 12,
+    "waitingChange": -3,
+    "unpaidCount": 8,
+    "todayRevenue": 12580.00,
+    "todayRevenueChange": 8,
+    "weekRegTrend": [
+      {"date": "2024-04-09", "count": 40},
+      {"date": "2024-04-10", "count": 42},
+      {"date": "2024-04-11", "count": 38},
+      {"date": "2024-04-12", "count": 50},
+      {"date": "2024-04-13", "count": 30},
+      {"date": "2024-04-14", "count": 0},
+      {"date": "2024-04-15", "count": 45}
+    ],
+    "weekRevenueTrend": [
+      {"date": "2024-04-09", "amount": 10500.00},
+      ...
+    ],
+    "todayTopDoctors": [
+      {"doctorName": "王建国", "count": 15, "revenue": 4500.00},
+      {"doctorName": "李小红", "count": 12, "revenue": 3800.00}
+    ],
+    "todayTopItems": [
+      {"itemName": "光固化树脂充填", "count": 10, "amount": 3000.00},
+      {"itemName": "口腔检查", "count": 25, "amount": 1250.00}
+    ],
+    "lowStockItems": [
+      {"itemName": "布洛芬缓释胶囊", "stock": 5, "lowStockAlert": 10}
+    ]
+  }
+}
+
+【日报表】
+GET /api/admin/report/daily
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- date: 日期（必填，格式yyyy-MM-dd）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "reportDate": "2024-04-15",
+    "regCount": 45,
+    "regCancelCount": 2,
+    "actualVisitCount": 43,
+    "newPatientCount": 15,
+    "oldPatientCount": 28,
+    "prescriptionCount": 38,
+    "prescriptionAmount": 15600.00,
+    "discountAmount": 800.00,
+    "actualAmount": 14800.00,
+    "cashAmount": 1500.00,
+    "wechatAmount": 8000.00,
+    "alipayAmount": 4000.00,
+    "cardAmount": 1300.00,
+    "revenueDetails": [
+      {"category": "检查费", "count": 30, "amount": 1500.00},
+      {"category": "治疗费", "count": 25, "amount": 8500.00},
+      {"category": "药品费", "count": 40, "amount": 2800.00}
+    ]
+  }
+}
+
+【月报表】
+GET /api/admin/report/monthly
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- year: 年份（必填）
+- month: 月份（必填）
+
+【科室营收排行】
+GET /api/admin/report/deptRanking
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- startDate: 开始日期（必填）
+- endDate: 结束日期（必填）
+
+【医生绩效报表】
+GET /api/admin/report/doctorPerformance
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- startDate: 开始日期（必填）
+- endDate: 结束日期（必填）
+- doctorId: 医生ID（选填）
+
+【药品消耗报表】
+GET /api/admin/report/medicineConsume
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- startDate: 开始日期（必填）
+- endDate: 结束日期（必填）
+
+【导出报表】
+GET /api/admin/report/export
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- reportType: 报表类型（必填，daily/monthly/doctor/medicine）
+- startDate: 开始日期（必填）
+- endDate: 结束日期（必填）
+- format: 导出格式（选填，xlsx/csv）
+
+────────────────────────────────────────────────────────────────────────────────
+4.11 小程序管理
+────────────────────────────────────────────────────────────────────────────────
+
+【获取首页配置】
+GET /api/admin/miniapp/homeConfig
+
+【更新首页配置】
+POST /api/admin/miniapp/homeConfig
+
+请求参数：
+{
+  "banners": [
+    {"imageUrl": "https://xxx.com/banner1.jpg", "link": "", "sort": 1},
+    {"imageUrl": "https://xxx.com/banner2.jpg", "link": "", "sort": 2}
+  ],
+  "quickEntries": [
+    {"icon": "appointment", "title": "预约挂号", "link": "/pages/register/index", "sort": 1},
+    {"icon": "queue", "title": "排队查询", "link": "/pages/queue/index", "sort": 2}
+  ]
+}
+
+【AI问诊配置】
+GET /api/admin/ai/config
+
+【更新AI问诊配置】
+POST /api/admin/ai/config
+
+请求参数：
+{
+  "enabled": true,
+  "model": "gpt-4",
+  "systemPrompt": "你是一位专业的口腔科AI助手...",
+  "maxTokens": 1000,
+  "temperature": 0.7,
+  "knowledgeBases": [1, 2, 3]
+}
+
+【消息模板配置】
+GET /api/admin/message/template
+
+【更新消息模板】
+POST /api/admin/message/template
+
+请求参数：
+{
+  "templateId": 1,
+  "templateName": "预约提醒",
+  "templateContent": "您已预约明日({{date}})上午{{time}}...",
+  "enabled": true
+}
+
+────────────────────────────────────────────────────────────────────────────────
+4.12 系统管理
+────────────────────────────────────────────────────────────────────────────────
+
+【用户列表】
+GET /api/admin/user/list
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- roleId: 角色ID（选填）
+- keyword: 关键词（选填）
+- status: 状态（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【添加用户】
+POST /api/admin/user/create
+
+请求参数：
+{
+  "clinicId": 1,
+  "username": "doctor_wang",
+  "password": "123456",
+  "realName": "王建国",
+  "phone": "13800138001",
+  "email": "wang@xxx.com",
+  "roleId": 2,
+  "deptId": 1,
+  "post": "主任医师"
+}
+
+【更新用户】
+POST /api/admin/user/update
+
+【删除用户】
+POST /api/admin/user/delete
+
+【重置密码】
+POST /api/admin/user/resetPassword
+
+请求参数：
+{
+  "userId": 1,
+  "newPassword": "123456"
+}
+
+【角色列表】
+GET /api/admin/role/list
+
+【添加角色】
+POST /api/admin/role/create
+
+请求参数：
+{
+  "roleName": "收银员",
+  "roleCode": "cashier",
+  "description": "负责收费、退款操作",
+  "dataScope": 1,
+  "menuIds": [101, 102, 103]
+}
+
+【更新角色权限】
+POST /api/admin/role/update
+
+请求参数：
+{
+  "roleId": 1,
+  "menuIds": [101, 102, 103, 104],
+  "dataScope": 1
+}
+
+【获取操作日志】
+GET /api/admin/log/operation
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- startDate: 开始日期（选填）
+- endDate: 结束日期（选填）
+- operatorId: 操作人ID（选填）
+- keyword: 关键词（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+【获取登录日志】
+GET /api/admin/log/login
+
+请求参数：
+- clinicId: 诊所ID（必填）
+- startDate: 开始日期（选填）
+- endDate: 结束日期（选填）
+- userId: 用户ID（选填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+================================================================================
+                        第五部分：AI模块接口
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+5.1 智能问诊
+────────────────────────────────────────────────────────────────────────────────
+
+【创建问诊会话】
+POST /api/ai/consultation/create
+
+请求参数：
+{
+  "clinicId": 1,                  // 诊所ID（必填）
+  "patientId": 10001,             // 患者ID（必填）
+  "consultationType": 1,           // 问诊类型：1智能预问诊 2健康咨询 3症状查询（必填）
+  "registrationId": 1001          // 挂号ID（选填，用于预问诊）
+}
+
+响应示例：
+{
+  "code": 200,
+  "message": "会话创建成功",
+  "data": {
+    "sessionId": "ai-session-uuid-xxx",
+    "createdAt": "2024-04-15 10:00:00"
+  }
+}
+
+【发送问诊消息】
+POST /api/ai/consultation/chat
+
+请求参数：
+{
+  "sessionId": "ai-session-uuid-xxx",  // 会话ID（必填）
+  "patientId": 10001,                   // 患者ID（必填）
+  "message": "牙疼了好几天，喝冷水更疼",   // 用户消息（必填）
+  "images": []                          // 用户上传的图片URLs（选填）
+}
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "messageId": 1001,
+    "aiResponse": "您好！根据您描述的症状（牙疼、冷刺激加重、持续数天），" +
+                   "这很可能是牙本质敏感或龋齿的表现。\n\n" +
+                   "为了更好地帮助您，请告诉我：\n" +
+                   "1. 具体是哪个位置的牙齿疼？\n" +
+                   "2. 是一直疼还是间歇性疼？\n" +
+                   "3. 有没有发现牙齿上有黑洞或变色？",
+    "suggestions": [
+      {"text": "预约挂号", "action": "navigate", "params": {"page": "/pages/register/index"}},
+      {"text": "继续咨询", "action": "continue"}
+    ],
+    "extractedSymptoms": {
+      "chiefComplaint": "牙疼",
+      "location": "待确认",
+      "duration": "数天",
+      "aggravatingFactors": ["冷刺激"],
+      "severity": "中等"
+    }
+  }
+}
+
+【获取问诊摘要（给医生看）】
+GET /api/ai/consultation/summary
+
+请求参数：
+- sessionId: 会话ID（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "sessionId": "ai-session-uuid-xxx",
+    "patientId": 10001,
+    "patientName": "张三",
+    "consultationType": 1,
+    "consultationTypeName": "智能预问诊",
+    "createdAt": "2024-04-15 10:00:00",
+    "duration": "5分钟",
+    "conversationSummary": "患者主诉牙疼，持续数天，冷刺激加重。AI采集到：部位待确认、持续时间数天、加重因素冷刺激。",
+    "symptoms": {
+      "chiefComplaint": "牙疼",
+      "location": "右下后牙（待确认）",
+      "duration": "数天",
+      "severity": "中度",
+      "aggravatingFactors": ["冷刺激", "吃东西"],
+      "alleviatingFactors": ["无"],
+      "accompanyingSymptoms": ["无"]
+    },
+    "possibleDiseases": [
+      {"name": "牙本质敏感", "probability": 0.75, "description": "冷热刺激痛"},
+      {"name": "龋齿", "probability": 0.60, "description": "需检查确认"},
+      {"name": "牙髓炎", "probability": 0.25, "description": "通常有自发性疼痛"}
+    ],
+    "urgencyLevel": 2,
+    "urgencyLevelName": "较急",
+    "suggestion": "建议尽快到口腔科就诊，进行口腔检查和X光片检查",
+    "warnings": [],
+    "doctorTips": "建议重点检查右下第一磨牙，探查是否有龋洞或楔状缺损"
+  }
+}
+
+【结束问诊会话】
+POST /api/ai/consultation/close
+
+请求参数：
+{
+  "sessionId": "ai-session-uuid-xxx"
+}
+
+【获取问诊历史】
+GET /api/ai/consultation/history
+
+请求参数：
+- patientId: 患者ID（必填）
+- pageNum: 页码
+- pageSize: 每页条数
+
+────────────────────────────────────────────────────────────────────────────────
+5.2 症状分析
+────────────────────────────────────────────────────────────────────────────────
+
+【分析症状】
+POST /api/ai/symptom/analyze
+
+请求参数：
+{
+  "clinicId": 1,
+  "patientId": 10001,
+  "symptoms": {
+    "chiefComplaint": "牙疼",
+    "location": "右下后牙",
+    "onsetTime": "3天前",
+    "duration": "持续性",
+    "severity": "中度（疼痛可忍受）",
+    "character": "胀痛",
+    "aggravatingFactors": ["冷刺激", "吃东西", "躺下"],
+    "alleviatingFactors": ["无明显缓解"],
+    "accompanyingSymptoms": ["牙龈肿痛", "轻微发烧"],
+    "history": "以前有过类似情况"
+  }
+}
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "possibleDiseases": [
+      {
+        "name": "急性牙髓炎",
+        "icdCode": "K04.001",
+        "probability": 0.80,
+        "description": "牙髓急性炎症，表现为持续性剧烈疼痛，冷热刺激痛",
+        "selfCare": "可服用止痛药缓解疼痛，尽快就医"
+      },
+      {
+        "name": "牙周脓肿",
+        "icdCode": "K05.201",
+        "probability": 0.65,
+        "description": "牙周组织急性化脓性感染",
+        "selfCare": "保持口腔清洁，使用漱口水"
+      }
+    ],
+    "urgencyLevel": 3,
+    "urgencyLevelName": "紧急",
+    "urgencyDescription": "建议24小时内就医",
+    "suggestedDepartment": "口腔科",
+    "suggestedExaminations": ["口腔检查", "X光片", "牙髓活力测试"],
+    "warnings": [
+      "如出现剧烈疼痛、面部肿胀、发热等症状加重，请立即就医"
+    ],
+    "consultDoctor": true
+  }
+}
+
+────────────────────────────────────────────────────────────────────────────────
+5.3 随访服务
+────────────────────────────────────────────────────────────────────────────────
+
+【创建随访任务】
+POST /api/ai/followup/create
+
+请求参数：
+{
+  "registrationId": 1001,
+  "patientId": 10001,
+  "followupType": 1,              // 随访类型：1治疗后随访 2复诊提醒 3定期回访
+  "planTime": "2024-04-22",       // 计划随访时间
+  "templateId": 1                 // 随访模板ID
+}
+
+【发送随访消息】
+POST /api/ai/followup/send
+
+请求参数：
+{
+  "patientId": 10001,
+  "followupMessage": "您好！您于4月15日在我诊所完成了补牙治疗，现在感觉怎么样？\n\n请回复：\n1. 牙齿还疼吗？\n2. 有没有出血或肿胀？\n3. 对治疗效果满意吗？"
+}
+
+【收集随访反馈】
+POST /api/ai/followup/collect
+
+请求参数：
+{
+  "followupTaskId": 1,
+  "patientId": 10001,
+  "answers": [
+    {"question": "牙齿还疼吗？", "answer": "不疼了"},
+    {"question": "有没有出血或肿胀？", "answer": "有一点肿"},
+    {"question": "对治疗效果满意吗？", "answer": "满意"}
+  ],
+  "satisfaction": 5,
+  "feedback": "医生态度很好，治疗效果也不错"
+}
+
+【复诊提醒】
+POST /api/ai/followup/remindRevisit
+
+请求参数：
+{
+  "patientId": 10001,
+  "revisitDate": "2024-05-15",
+  "revisitReason": "复查",
+  "doctorName": "王建国",
+  "clinicPhone": "010-12345678"
+}
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "messageId": 1001,
+    "sendStatus": 1,
+    "scheduledTime": "2024-05-14 10:00:00"
+  }
+}
+
+────────────────────────────────────────────────────────────────────────────────
+5.4 医生助手
+────────────────────────────────────────────────────────────────────────────────
+
+【获取诊疗建议】
+GET /api/ai/doctor/suggestion
+
+请求参数：
+- medicalRecordId: 病历ID（选填）
+- doctorId: 医生ID（必填）
+- patientId: 患者ID（必填）
+- diagnosis: 诊断（必填）
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "suggestions": [
+      {
+        "type": "检查建议",
+        "content": "建议进行X光片检查，排除根尖周病变"
+      },
+      {
+        "type": "治疗方案",
+        "content": "如X光片显示牙髓未累及，建议光固化树脂充填"
+      },
+      {
+        "type": "用药建议",
+        "content": "如疼痛明显，可口服布洛芬缓解"
+      },
+      {
+        "type": "注意事项",
+        "content": "治疗期间避免用患侧咀嚼，保持口腔清洁"
+      }
+    ],
+    "similarCases": [
+      {
+        "caseInfo": "类似病例：右下第一磨牙深龋",
+        "treatment": "光固化树脂充填",
+        "outcome": "治愈，随访1年无异常"
+      }
+    ],
+    "references": [
+      {"title": "口腔内科学（第8版）", "author": "张三", "page": "第156页"},
+      {"title": "临床诊疗指南-口腔医学分册", "chapter": "第五章"}
+    ]
+  }
+}
+
+【获取药物相互作用检查】
+POST /api/ai/doctor/checkDrugInteraction
+
+请求参数：
+{
+  "patientId": 10001,
+  "drugs": [
+    {"name": "布洛芬", "dose": "300mg", "frequency": "每日2次"},
+    {"name": "阿司匹林", "dose": "100mg", "frequency": "每日1次"}
+  ]
+}
+
+响应示例：
+{
+  "code": 200,
+  "data": {
+    "hasInteraction": true,
+    "warnings": [
+      {
+        "drug1": "布洛芬",
+        "drug2": "阿司匹林",
+        "severity": "中度",
+        "description": "两者都是非甾体抗炎药，合用可能增加胃肠道出血风险",
+        "suggestion": "建议错开服用，或咨询医生调整用药"
+      }
+    ],
+    "allergyWarnings": [
+      {
+        "drug": "青霉素",
+        "patientAllergy": "有青霉素过敏史",
+        "severity": "高",
+        "suggestion": "避免使用青霉素类药物"
+      }
+    ]
+  }
+}
+
+================================================================================
+                        附录：错误码说明
+================================================================================
+
+【成功】
+200 - 成功
+
+【客户端错误】
+400 - 参数错误
+401 - 未登录或登录已过期
+403 - 无权限访问
+404 - 资源不存在
+422 - 业务规则错误（如余额不足、排班已满等）
+
+【服务端错误】
+500 - 服务器内部错误
+502 - 网关错误
+503 - 服务不可用
+504 - 服务超时
+
+【业务错误码】
+1001 - 用户名或密码错误
+1002 - 账户已被禁用
+1003 - 验证码错误
+2001 - 挂号已满
+2002 - 不在可预约时间内
+2003 - 预约已过期
+2004 - 存在冲突预约
+3001 - 余额不足
+3002 - 支付失败
+3003 - 订单已支付
+3004 - 退款金额超出实际支付
+4001 - 库存不足
+4002 - 药品已停用
+5001 - 数据不存在
+5002 - 数据已存在
+5003 - 数据已关联，无法删除
+
+================================================================================
+                        附录：WebSocket接口
+================================================================================
+
+【WebSocket连接地址】
+wss://api.xxx.com/ws?token={jwt_token}
+
+【排队状态推送】
+服务端主动推送
+
+推送消息：
+{
+  "type": "queue_update",
+  "data": {
+    "regId": 1001,
+    "queueNo": 5,
+    "currentQueue": 3,
+    "estimatedWaitTime": 15,
+    "status": 2,
+    "statusName": "候诊中"
+  }
+}
+
+【新消息推送】
+{
+  "type": "new_message",
+  "data": {
+    "msgId": 1,
+    "msgType": 2,
+    "title": "就诊提醒",
+    "content": "即将轮到您就诊，请做好准备"
+  }
+}
+
+【叫号通知】
+{
+  "type": "call_number",
+  "data": {
+    "clinicId": 1,
+    "queueNo": 5,
+    "message": "请5号患者到诊室就诊"
+  }
+}
+
+================================================================================
+                            文档结束
+================================================================================

@@ -1,0 +1,1 @@
+import{a7 as o,a4 as n}from"./index-CIHRmZEu.js";const s=t=>o("/admin/consultation/list",t),i=t=>n("/admin/consultation/create",t),e=t=>n("/admin/consultation/update",t),c=t=>n(`/admin/consultation/delete?id=${t}`),u=t=>o("/admin/consultation/upcoming-revisits",t);export{s as a,i as c,c as d,u as g,e as u};

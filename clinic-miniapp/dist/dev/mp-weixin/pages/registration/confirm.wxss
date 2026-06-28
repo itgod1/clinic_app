@@ -1,0 +1,323 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.registration-confirm-page.data-v-f960a9f2 {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding: 20rpx;
+  padding-bottom: 140rpx;
+}
+.card.data-v-f960a9f2 {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+.card .card-title.data-v-f960a9f2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 24rpx;
+  padding-left: 20rpx;
+  border-left: 8rpx solid #667eea;
+}
+.card .card-title .add-btn.data-v-f960a9f2 {
+  font-size: 28rpx;
+  color: #667eea;
+  font-weight: normal;
+}
+.card .info-row.data-v-f960a9f2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.card .info-row.data-v-f960a9f2:last-child {
+  margin-bottom: 0;
+}
+.card .info-row .label.data-v-f960a9f2 {
+  font-size: 28rpx;
+  color: #999;
+}
+.card .info-row .value.data-v-f960a9f2 {
+  font-size: 28rpx;
+  color: #333;
+}
+.card .info-row .value.highlight.data-v-f960a9f2 {
+  color: #667eea;
+  font-weight: 500;
+}
+.card .info-row .value.price.data-v-f960a9f2 {
+  color: #ff6b6b;
+  font-size: 36rpx;
+  font-weight: bold;
+}
+.patient-selector.data-v-f960a9f2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40rpx 30rpx;
+  background: #f9f9f9;
+  border-radius: 12rpx;
+  border: 2rpx dashed #ddd;
+}
+.patient-selector .placeholder.data-v-f960a9f2 {
+  font-size: 30rpx;
+  color: #999;
+}
+.patient-selector .arrow.data-v-f960a9f2 {
+  font-size: 32rpx;
+  color: #999;
+}
+.type-selector.data-v-f960a9f2 {
+  display: flex;
+  gap: 20rpx;
+}
+.type-selector .type-item.data-v-f960a9f2 {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx;
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  border: 3rpx solid transparent;
+}
+.type-selector .type-item .type-name.data-v-f960a9f2 {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+.type-selector .type-item .type-desc.data-v-f960a9f2 {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+.type-selector .type-item.active.data-v-f960a9f2 {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: #667eea;
+}
+.type-selector .type-item.active .type-name.data-v-f960a9f2 {
+  color: #667eea;
+}
+.date-section.data-v-f960a9f2 {
+  margin-bottom: 30rpx;
+}
+.date-section .section-label.data-v-f960a9f2 {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+.date-section .date-list.data-v-f960a9f2 {
+  white-space: nowrap;
+}
+.date-section .date-list .date-item.data-v-f960a9f2 {
+  display: inline-block;
+  text-align: center;
+  padding: 20rpx 30rpx;
+  margin-right: 16rpx;
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  border: 3rpx solid transparent;
+}
+.date-section .date-list .date-item .date-week.data-v-f960a9f2 {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+.date-section .date-list .date-item .date-day.data-v-f960a9f2 {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+.date-section .date-list .date-item.active.data-v-f960a9f2 {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: #667eea;
+}
+.date-section .date-list .date-item.active .date-week.data-v-f960a9f2, .date-section .date-list .date-item.active .date-day.data-v-f960a9f2 {
+  color: #667eea;
+}
+.time-section .section-label.data-v-f960a9f2 {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+.time-section .time-period.data-v-f960a9f2 {
+  margin-bottom: 30rpx;
+}
+.time-section .time-period .period-title.data-v-f960a9f2 {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+.time-section .time-period .time-grid.data-v-f960a9f2 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+}
+.time-section .time-period .time-grid .time-slot.data-v-f960a9f2 {
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 26rpx;
+  color: #333;
+  background: #f5f5f5;
+  border-radius: 12rpx;
+}
+.time-section .time-period .time-grid .time-slot.active.data-v-f960a9f2 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+.time-section .time-period .time-grid .time-slot.disabled.data-v-f960a9f2 {
+  color: #ccc;
+  background: #f9f9f9;
+}
+.desc-textarea.data-v-f960a9f2 {
+  width: 100%;
+  height: 200rpx;
+  background: #f9f9f9;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10;
+}
+.word-count.data-v-f960a9f2 {
+  display: block;
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 12rpx;
+}
+.footer.data-v-f960a9f2 {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+.footer .total-fee .label.data-v-f960a9f2 {
+  font-size: 28rpx;
+  color: #666;
+  margin-right: 12rpx;
+}
+.footer .total-fee .price.data-v-f960a9f2 {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+.footer .submit-btn.data-v-f960a9f2 {
+  width: 280rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 44rpx;
+}
+.footer .submit-btn.data-v-f960a9f2::after {
+  border: none;
+}
+.footer .submit-btn[disabled].data-v-f960a9f2 {
+  opacity: 0.5;
+}
+.patient-popup.data-v-f960a9f2 {
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  max-height: 70vh;
+}
+.patient-popup .popup-header.data-v-f960a9f2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.patient-popup .popup-header .title.data-v-f960a9f2 {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333;
+}
+.patient-popup .popup-header .close.data-v-f960a9f2 {
+  font-size: 40rpx;
+  color: #999;
+  padding: 10rpx;
+}
+.patient-popup .patient-list.data-v-f960a9f2 {
+  max-height: 50vh;
+}
+.patient-popup .patient-list .patient-item.data-v-f960a9f2 {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.patient-popup .patient-list .patient-item.selected.data-v-f960a9f2 {
+  background: rgba(102, 126, 234, 0.05);
+}
+.patient-popup .patient-list .patient-item .patient-main.data-v-f960a9f2 {
+  flex: 1;
+}
+.patient-popup .patient-list .patient-item .patient-main .name.data-v-f960a9f2 {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+.patient-popup .patient-list .patient-item .patient-main .info.data-v-f960a9f2 {
+  display: block;
+  font-size: 26rpx;
+  color: #999;
+}
+.patient-popup .patient-list .patient-item .phone.data-v-f960a9f2 {
+  font-size: 26rpx;
+  color: #666;
+  margin-right: 20rpx;
+}
+.patient-popup .patient-list .patient-item .check.data-v-f960a9f2 {
+  font-size: 32rpx;
+  color: #667eea;
+  font-weight: bold;
+}
+.patient-popup .popup-footer.data-v-f960a9f2 {
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+.patient-popup .popup-footer .add-btn.data-v-f960a9f2 {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: #f5f5f5;
+  color: #667eea;
+  font-size: 30rpx;
+  border-radius: 44rpx;
+}
+.patient-popup .popup-footer .add-btn.data-v-f960a9f2::after {
+  border: none;
+}

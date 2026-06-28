@@ -1,0 +1,47 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.empty-data.data-v-26d5031f {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.empty-data .empty-image.data-v-26d5031f {
+  width: 240rpx;
+  height: 240rpx;
+  margin-bottom: 30rpx;
+}
+.empty-data .empty-text.data-v-26d5031f {
+  font-size: 30rpx;
+  color: #999;
+  margin-bottom: 12rpx;
+}
+.empty-data .empty-subtext.data-v-26d5031f {
+  font-size: 26rpx;
+  color: #bbb;
+  margin-bottom: 30rpx;
+}
+.empty-data .empty-btn.data-v-26d5031f {
+  margin: 0;
+  padding: 16rpx 48rpx;
+  background: #1890ff;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 32rpx;
+  line-height: 1.5;
+}
+.empty-data .empty-btn.data-v-26d5031f::after {
+  border: none;
+}

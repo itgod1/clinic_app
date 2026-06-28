@@ -1,0 +1,210 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.medical-list-page.data-v-90e36fa3 {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f0f9f6 0%, #f5f7fa 100%);
+}
+.stats-card.data-v-90e36fa3 {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: linear-gradient(135deg, #00b894 0%, #00d4a8 100%);
+  margin: 20rpx 30rpx;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 184, 148, 0.2);
+}
+.stats-card .stat-item.data-v-90e36fa3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stats-card .stat-item .stat-num.data-v-90e36fa3 {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8rpx;
+}
+.stats-card .stat-item .stat-label.data-v-90e36fa3 {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+.stats-card .stat-divider.data-v-90e36fa3 {
+  width: 2rpx;
+  height: 60rpx;
+  background: rgba(255, 255, 255, 0.3);
+}
+.record-list.data-v-90e36fa3 {
+  height: calc(100vh - 200rpx);
+  padding: 0 30rpx 30rpx;
+}
+.record-list .record-card.data-v-90e36fa3 {
+  background: #fff;
+  border-radius: 20rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+.record-list .record-card .card-header.data-v-90e36fa3 {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 30rpx;
+  background: linear-gradient(135deg, #f8fffe 0%, #e8f5f0 100%);
+  border-bottom: 1rpx solid rgba(0, 184, 148, 0.1);
+}
+.record-list .record-card .card-header .visit-date.data-v-90e36fa3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #00b894 0%, #00d4a8 100%);
+  border-radius: 16rpx;
+  margin-right: 20rpx;
+}
+.record-list .record-card .card-header .visit-date .date-day.data-v-90e36fa3 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+}
+.record-list .record-card .card-header .visit-date .date-month.data-v-90e36fa3 {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 4rpx;
+}
+.record-list .record-card .card-header .visit-info.data-v-90e36fa3 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.record-list .record-card .card-header .visit-info .record-no.data-v-90e36fa3 {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+.record-list .record-card .card-header .visit-info .visit-type.data-v-90e36fa3 {
+  font-size: 26rpx;
+  color: #00b894;
+  font-weight: 500;
+}
+.record-list .record-card .card-header .status-tag.data-v-90e36fa3 {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+}
+.record-list .record-card .card-header .status-tag.pending.data-v-90e36fa3 {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+.record-list .record-card .card-header .status-tag.in-progress.data-v-90e36fa3 {
+  background: #f6ffed;
+  color: #52c41a;
+}
+.record-list .record-card .card-header .status-tag.completed.data-v-90e36fa3 {
+  background: #00b894;
+  color: #fff;
+}
+.record-list .record-card .card-header .status-tag.cancelled.data-v-90e36fa3 {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+.record-list .record-card .card-body.data-v-90e36fa3 {
+  padding: 24rpx 30rpx;
+}
+.record-list .record-card .card-body .doctor-info.data-v-90e36fa3 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx dashed #eee;
+}
+.record-list .record-card .card-body .doctor-info .avatar-wrap.data-v-90e36fa3 {
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #e8f5f0 0%, #d4edda 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+.record-list .record-card .card-body .doctor-info .avatar-wrap .avatar-icon.data-v-90e36fa3 {
+  font-size: 44rpx;
+}
+.record-list .record-card .card-body .doctor-info .doctor-detail.data-v-90e36fa3 {
+  display: flex;
+  flex-direction: column;
+}
+.record-list .record-card .card-body .doctor-info .doctor-detail .doctor-name.data-v-90e36fa3 {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+.record-list .record-card .card-body .doctor-info .doctor-detail .dept-name.data-v-90e36fa3 {
+  font-size: 24rpx;
+  color: #00b894;
+}
+.record-list .record-card .card-body .info-section.data-v-90e36fa3 {
+  margin-bottom: 20rpx;
+}
+.record-list .record-card .card-body .info-section.data-v-90e36fa3:last-child {
+  margin-bottom: 0;
+}
+.record-list .record-card .card-body .info-section .section-title.data-v-90e36fa3 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+.record-list .record-card .card-body .info-section .section-title .title-icon.data-v-90e36fa3 {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+.record-list .record-card .card-body .info-section .section-title text.data-v-90e36fa3 {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+.record-list .record-card .card-body .info-section .section-content.data-v-90e36fa3 {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+  padding-left: 36rpx;
+}
+.record-list .record-card .card-body .info-section .section-content.diagnosis.data-v-90e36fa3 {
+  color: #00b894;
+  font-weight: 500;
+}
+.record-list .record-card .card-footer.data-v-90e36fa3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 30rpx;
+  background: #f8fffe;
+  border-top: 1rpx solid rgba(0, 184, 148, 0.1);
+}
+.record-list .record-card .card-footer .view-detail.data-v-90e36fa3 {
+  font-size: 26rpx;
+  color: #00b894;
+  font-weight: 500;
+}
+.record-list .record-card .card-footer .arrow-icon.data-v-90e36fa3 {
+  font-size: 32rpx;
+  color: #00b894;
+  margin-left: 8rpx;
+}

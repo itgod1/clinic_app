@@ -1,0 +1,1 @@
+import{r as a}from"./request.96ee46d6.js";const p=p=>a({url:"/miniapp/payments/unpaid",method:"GET",params:p}),m=p=>a({url:"/miniapp/payments/history",method:"GET",params:p}),s=p=>a({url:`/miniapp/payments/${p}`,method:"GET"}),t=p=>a({url:"/miniapp/payments/pay",method:"POST",data:p});export{p as a,m as b,s as g,t as p};

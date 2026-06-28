@@ -1,0 +1,66 @@
+# ==========================================
+# 生产环境配置 (Production)
+# ==========================================
+
+server:
+  port: ${SERVER_PORT:8080}
+  address: 0.0.0.0
+
+spring:
+  # 生产环境数据库配置（使用环境变量）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:13306/clinic_saas_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:GBdnN87C78iwK7NL}
+
+
+
+# 生产环境日志配置（简化日志，记录到文件）
+logging:
+  level:
+    com.clinic: info
+    org.springframework.web: warn
+    org.mybatis: warn
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n'
+  file:
+    name: ${LOG_PATH:/var/log/clinic-api}/clinic-api-prod.log
+    max-size: 100MB
+    max-history: 30
+
+# Knife4j生产环境配置（禁用或加认证）
+knife4j:
+  enable: ${KNIFE4J_ENABLE:false}
+  production: true
+  basic:
+    enable: ${KNIFE4J_AUTH_ENABLE:true}
+    username: ${KNIFE4J_USERNAME:admin}
+    password: ${KNIFE4J_PASSWORD:}
+
+# 微信小程序配置（生产环境）
+wechat:
+  miniapp:
+    appid: ${WECHAT_APPID:wx78b6683972d369dd}
+    secret: ${WECHAT_SECRET:2fc30f079ae3024644c58d80f533169b}
+
+# 文件上传配置（生产环境）
+upload:
+  path: ${UPLOAD_PATH:/www/wwwroot/image}
+  url-prefix: /uploads
+
+# AI回访API配置（生产环境必须使用强密钥）
+ai:
+  api-key: ${AI_API_KEY:sk-clinic-ai-2025-a1b2c3d4e5f6}
+  webhook-secret: ${AI_WEBHOOK_SECRET:webhook-prod-secret}
+
+# LangGraph AI回访服务配置（已替代Dify）
+langgraph:
+  api-url: ${LANGGRAPH_API_URL:http://127.0.0.1:8000}
+  api-key: ${LANGGRAPH_API_KEY:sk-clinic-ai-2025-a1b2c3d4e5f6}
+
+# 生产环境特定配置
+clinic:
+  env: prod
+  debug: false

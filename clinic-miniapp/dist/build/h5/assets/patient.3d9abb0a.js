@@ -1,0 +1,1 @@
+import{r as a}from"./request.96ee46d6.js";const t=t=>a({url:"/miniapp/patient/list",method:"GET",params:t}),p=t=>a({url:`/miniapp/patient/${t}`,method:"GET"}),e=t=>a({url:"/miniapp/patient/create",method:"POST",data:t}),i=t=>a({url:"/miniapp/patient/update",method:"POST",data:t});export{p as a,e as c,t as g,i as u};

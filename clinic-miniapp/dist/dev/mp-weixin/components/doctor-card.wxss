@@ -1,0 +1,89 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ */
+/* 颜色变量 */
+/* 文字颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.doctor-card.data-v-83c945d3 {
+  display: flex;
+  padding: 30rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+.doctor-card .avatar.data-v-83c945d3 {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  margin-right: 24rpx;
+  background: #f0f0f0;
+}
+.doctor-card .info.data-v-83c945d3 {
+  flex: 1;
+  min-width: 0;
+}
+.doctor-card .info .header.data-v-83c945d3 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+.doctor-card .info .header .name.data-v-83c945d3 {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-right: 16rpx;
+}
+.doctor-card .info .header .title.data-v-83c945d3 {
+  font-size: 24rpx;
+  color: #1890ff;
+  background: rgba(24, 144, 255, 0.1);
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+}
+.doctor-card .info .department.data-v-83c945d3 {
+  font-size: 26rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 8rpx;
+}
+.doctor-card .info .intro.data-v-83c945d3 {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 12rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.doctor-card .info .footer.data-v-83c945d3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.doctor-card .info .footer .fee.data-v-83c945d3 {
+  font-size: 26rpx;
+  color: #ff6b6b;
+  font-weight: 500;
+}
+.doctor-card .info .footer .status.data-v-83c945d3 {
+  font-size: 24rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+}
+.doctor-card .info .footer .status.online.data-v-83c945d3 {
+  color: #52c41a;
+  background: rgba(82, 196, 26, 0.1);
+}
+.doctor-card .info .footer .status.offline.data-v-83c945d3 {
+  color: #999;
+  background: #f5f5f5;
+}

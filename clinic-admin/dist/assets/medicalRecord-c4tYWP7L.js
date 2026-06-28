@@ -1,0 +1,1 @@
+import{a7 as e,a4 as t}from"./index-CIHRmZEu.js";const o=a=>e(`/admin/tooth-chart/${a}`),d=a=>t("/admin/tooth-chart/save",a),s=a=>e("/admin/medicalRecord/list",a),i=a=>e(`/admin/medicalRecord/${a}`),r=a=>t("/admin/medicalRecord/create",a),m=a=>t("/admin/medicalRecord/update",a);export{i as a,o as b,r as c,s as g,d as s,m as u};
