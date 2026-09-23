@@ -35,6 +35,8 @@ public class Registration implements Serializable {
     private String cancelReason;
     private Integer status;
 
+    private String clientRequestId;
+
     @TableField(exist = false)
     private String visitTypeName;
 

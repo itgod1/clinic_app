@@ -456,4 +456,54 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         return queueInfo;
     }
+
+    @Override
+    public Map<String, Object> createForUser(Long userId, Registration registration, String clientRequestId) {
+        // 幂等检查：同 clientRequestId 直接返回已存在的挂号单
+        if (StringUtils.hasText(clientRequestId)) {
+            LambdaQueryWrapper<Registration> idemQuery = new LambdaQueryWrapper<>();
+            idemQuery.eq(Registration::getClientRequestId, clientRequestId);
+            idemQuery.last("LIMIT 1");
+            Registration existing = registrationMapper.selectOne(idemQuery);
+            if (existing != null) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("registration", existing);
+                data.put("duplicated", true);
+                return data;
+            }
+        }
+
+        // 归属校验：就诊人必须属于当前用户
+        Patient patient = registration.getPatientId() == null
+                ? null : patientMapper.selectById(registration.getPatientId());
+        if (patient == null || !userId.equals(patient.getUserId())) {
+            throw new BusinessException("无权为该就诊人挂号");
+        }
+
+        registration.setClientRequestId(clientRequestId);
+        validateRegistration(registration);
+        create(registration);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("registration", registration);
+        data.put("duplicated", false);
+        return data;
+    }
+
+    @Override
+    public void cancelForUser(Long userId, Long regId, String reason) {
+        Registration registration = registrationMapper.selectById(regId);
+        if (registration == null) {
+            throw new BusinessException("挂号记录不存在");
+        }
+
+        // 归属校验：挂号必须属于当前用户的就诊人
+        Patient patient = registration.getPatientId() == null
+                ? null : patientMapper.selectById(registration.getPatientId());
+        if (patient == null || !userId.equals(patient.getUserId())) {
+            throw new BusinessException("无权操作该挂号");
+        }
+
+        cancel(regId, reason);
+    }
 }
