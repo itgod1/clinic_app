@@ -61,9 +61,4 @@ public interface RegistrationService {
      * 患者侧创建挂号（幂等键防重复下单，归属校验）
      */
     Map<String, Object> createForUser(Long userId, Registration registration, String clientRequestId);
-
-    /**
-     * 患者侧取消挂号（归属校验）
-     */
-    void cancelForUser(Long userId, Long regId, String reason);
 }

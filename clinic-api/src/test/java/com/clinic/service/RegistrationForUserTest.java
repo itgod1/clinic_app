@@ -76,18 +76,4 @@ class RegistrationForUserTest {
         assertTrue(ex.getMessage().contains("无权"));
         verify(registrationMapper, never()).insert(any(Registration.class));
     }
-
-    @Test
-    void cancelOthersRegistrationRejected() {
-        Registration other = new Registration();
-        other.setId(5L);
-        other.setPatientId(11L);
-        when(registrationMapper.selectById(5L)).thenReturn(other);
-        when(patientMapper.selectById(11L)).thenReturn(patientOf(11L, 8L));
-
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> service.cancelForUser(7L, 5L, "误约"));
-        assertTrue(ex.getMessage().contains("无权"));
-        verify(registrationMapper, never()).deleteById(any(Registration.class));
-    }
 }

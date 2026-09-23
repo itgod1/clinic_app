@@ -74,21 +74,4 @@ public class RegistrationController {
         Map<String, Object> data = registrationService.createForUser(userId, registration, clientRequestId);
         return Result.success(data);
     }
-
-    /**
-     * 患者/agent取消挂号
-     */
-    @ApiOperation("患者取消挂号")
-    @OperationLog(module = "小程序-挂号", type = OperationType.UPDATE, desc = "患者/agent取消挂号")
-    @PostMapping("/registration/cancel")
-    public Result<String> cancel(@RequestBody Map<String, Object> params) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        if (userId == null) {
-            return Result.badRequest("用户未登录");
-        }
-        Long id = Long.valueOf(params.get("id").toString());
-        String reason = params.get("reason") != null ? params.get("reason").toString() : null;
-        registrationService.cancelForUser(userId, id, reason);
-        return Result.success("取消成功");
-    }
 }

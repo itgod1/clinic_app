@@ -489,21 +489,4 @@ public class RegistrationServiceImpl implements RegistrationService {
         data.put("duplicated", false);
         return data;
     }
-
-    @Override
-    public void cancelForUser(Long userId, Long regId, String reason) {
-        Registration registration = registrationMapper.selectById(regId);
-        if (registration == null) {
-            throw new BusinessException("挂号记录不存在");
-        }
-
-        // 归属校验：挂号必须属于当前用户的就诊人
-        Patient patient = registration.getPatientId() == null
-                ? null : patientMapper.selectById(registration.getPatientId());
-        if (patient == null || !userId.equals(patient.getUserId())) {
-            throw new BusinessException("无权操作该挂号");
-        }
-
-        cancel(regId, reason);
-    }
 }

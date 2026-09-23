@@ -48,14 +48,4 @@ public interface PrescriptionService {
      * @param payAmount 支付金额
      */
     void pay(Long prescriptionId, Integer paymentMethod, java.math.BigDecimal payAmount);
-
-    /**
-     * 获取当前用户的药单列表（归属过滤）
-     */
-    Map<String, Object> listForUser(Long userId, Integer pageNum, Integer pageSize);
-
-    /**
-     * 获取药单详情（归属校验，含药品明细）
-     */
-    Prescription getForUser(Long userId, Long id);
 }
