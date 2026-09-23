@@ -20,6 +20,14 @@
 - 所有新 Python 代码放 `E:\workcode\clinic\_agent\clinic_agent_service\`；所有 git 提交用各仓库现有风格（clinic_app 中文描述、`_agent` 仓库英文 conventional）。
 - Java 控制器遵循现有模式：`@RestController` + `@RequiredArgsConstructor` + `Result<T>` 包装 + 写操作加 `@OperationLog`。
 
+## 2026-09-23 执行中修订（用户裁定：方案二）
+
+执行中发现设计文档漏了"小程序直接调 admin 接口"的现有链路（`clinic-miniapp/src/api/registration.js` 用 `/admin/registration/create|cancel`，`api/medical.js` 用 `/admin/prescription/list|{id}`）。用户裁定：
+
+- **Task 1 裁剪**：仅保留 `POST /miniapp/registration/create`（幂等键+归属校验，防 agent 重试重复挂号——唯一新增价值）。cancel 端点与 cancelForUser 已删（commit `23403f8b`），agent 取消挂号复用 `POST /admin/registration/cancel`（body `{id, reason}`）。
+- **Task 2 整体取消**：药单查询复用现有 admin 接口。注意 `/admin/prescription/list` 必填 `clinicId` 且**无患者过滤**、`/admin/prescription/{id}` 无归属校验——**Task 4 工具层必须做确定性过滤**：工具内部先调 `/miniapp/patient/list` 取当前用户就诊人 id 集合（顺带取 clinicId），列表按 `patientId ∈ 就诊人集合` 过滤、明细先校验归属，不通过则返回"无权查看"，禁止把他人药单交给 LLM。
+- 其余任务不变。
+
 ## 文件结构总览
 
 ```
@@ -392,11 +400,12 @@ SPECS: list[ToolSpec] = [
               "reg_date": {"type": "string", "description": "YYYY-MM-DD"},
               "time_slot": {"type": "string", "description": "如 09:30"}},
              ["doctor_id", "patient_id", "reg_date"], write=True),
-    ToolSpec("cancel_registration", "取消挂号（写操作，需用户确认后调用）", "POST", "/miniapp/registration/cancel",
+    ToolSpec("cancel_registration", "取消挂号（写操作，需用户确认后调用；仅可取消我的挂号里出现过的单）", "POST", "/admin/registration/cancel",
              {"id": {"type": "integer"}, "reason": {"type": "string"}}, ["id"], write=True),
-    ToolSpec("list_prescriptions", "查当前患者的药单（处方）列表", "GET", "/miniapp/prescriptions", {}),
-    ToolSpec("get_prescription", "查药单明细（含药品与用法）", "GET", "/miniapp/prescriptions/{id}",
-             {"id": {"type": "integer"}}, ["id"]),
+    ToolSpec("list_prescriptions", "查当前患者的药单（处方）列表", "GET", "/admin/prescription/list",
+             {"payment_status": {"type": "integer", "description": "支付状态筛选"}}, needs_patient_filter=True),
+    ToolSpec("get_prescription", "查药单明细（含药品与用法）", "GET", "/admin/prescription/{id}",
+             {"id": {"type": "integer"}}, ["id"], needs_patient_filter=True),
     ToolSpec("list_medical_records", "查当前患者的病历/就诊记录列表", "GET", "/miniapp/medical/record/list", {}),
     ToolSpec("get_medical_record", "查病历详情", "GET", "/miniapp/medical/record/{id}",
              {"id": {"type": "integer"}}, ["id"]),

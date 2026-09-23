@@ -100,6 +100,8 @@ _agent/clinic_agent_service/
 
 ⚠️ = 需患者确认的写操作。所有工具返回结构化数据（JSON），大结果截断（排班最多 14 天、列表最多 20 条），详情让 agent 按需再查明细。
 
+> **2026-09-23 修订（用户裁定）**：上表"新增 4 个患者接口"缩减为 **1 个**——仅保留 `POST /miniapp/registration/create`（幂等键，防 agent 重试重复下单）。取消挂号复用现有 `POST /admin/registration/cancel`；药单查询复用现有 `GET /admin/prescription/list`（必填 clinicId、无患者过滤）与 `GET /admin/prescription/{id}`。因 admin 接口无患者归属过滤，**工具层负责确定性归属过滤**：先调 `/miniapp/patient/list` 取就诊人集合，列表/明细在返回给 LLM 前按 `patientId` 过滤/校验。
+
 **写操作确认**：创建/取消挂号工具标记 require-confirm → 框架暂停 run 并发 `RequireUserConfirmEvent`（携带工具名+参数）→ 小程序渲染卡片（医生/时间/就诊人）→ 患者确认 → `UserConfirmResultEvent` 恢复。全程框架原生 HITL，不自造协议。
 
 **会话模型**：每患者一个长期会话（按 `patient:{userId}` + 固定 agent 名定位），历史持久化在 Redis，多轮上下文连续。
