@@ -18,9 +18,11 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -310,6 +312,58 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         List<PrescriptionItem> items = prescriptionItemMapper.selectByPrescriptionId(prescription.getId());
         items.forEach(item -> item.setItemTypeName(DictConstants.getItemTypeName(item.getItemType())));
         prescription.setItems(items);
+    }
+
+    @Override
+    public Map<String, Object> listForUser(Long userId, Integer pageNum, Integer pageSize) {
+        // 1. 查询该用户的所有就诊人ID
+        LambdaQueryWrapper<Patient> patientQuery = new LambdaQueryWrapper<>();
+        patientQuery.eq(Patient::getUserId, userId);
+        patientQuery.eq(Patient::getDeleted, 0);
+        List<Patient> patients = patientMapper.selectList(patientQuery);
+
+        Map<String, Object> data = new HashMap<>();
+        if (patients.isEmpty()) {
+            data.put("list", new ArrayList<>());
+            data.put("total", 0);
+            return data;
+        }
+
+        List<Long> patientIds = patients.stream()
+                .map(Patient::getId)
+                .collect(Collectors.toList());
+
+        // 2. 查询这些就诊人的药单
+        LambdaQueryWrapper<Prescription> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Prescription::getPatientId, patientIds);
+        queryWrapper.eq(Prescription::getDeleted, 0);
+        queryWrapper.orderByDesc(Prescription::getCreatedAt);
+
+        Page<Prescription> page = new Page<>(pageNum, pageSize);
+        Page<Prescription> resultPage = prescriptionMapper.selectPage(page, queryWrapper);
+        resultPage.getRecords().forEach(this::enrichPrescription);
+
+        data.put("list", resultPage.getRecords());
+        data.put("total", resultPage.getTotal());
+        return data;
+    }
+
+    @Override
+    public Prescription getForUser(Long userId, Long id) {
+        Prescription prescription = prescriptionMapper.selectById(id);
+        if (prescription == null) {
+            throw new BusinessException("处方不存在");
+        }
+
+        // 归属校验：药单必须属于当前用户的就诊人
+        Patient patient = prescription.getPatientId() == null
+                ? null : patientMapper.selectById(prescription.getPatientId());
+        if (patient == null || !userId.equals(patient.getUserId())) {
+            throw new BusinessException("无权查看该药单");
+        }
+
+        enrichPrescription(prescription);
+        return prescription;
     }
 
     @Override
