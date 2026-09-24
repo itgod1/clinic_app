@@ -1,7 +1,9 @@
 package com.clinic.controller.miniapp;
 
-import com.clinic.controller.miniapp.AgentProxyController;
+import com.clinic.common.result.Result;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,6 +12,18 @@ import static org.junit.jupiter.api.Assertions.*;
  * 其他透传帧不得误伤（否则正常对话被无限拖延收尾）。
  */
 class AgentProxyConfirmFrameTest {
+
+    @Test
+    void failureResultCarriesExplicitJsonContentType() {
+        // 客户端 Accept: text/event-stream 时，失败分支裸返回 Result 会被
+        // 内容协商盖成 406——asJson 显式声明 JSON，跳过协商
+        ResponseEntity<Result<Object>> r = AgentProxyController.asJson(Result.error(429, "请求过于频繁"));
+        assertEquals(200, r.getStatusCodeValue());
+        assertEquals(MediaType.APPLICATION_JSON, r.getHeaders().getContentType());
+        assertNotNull(r.getBody());
+        assertEquals(429, r.getBody().getCode());
+        assertEquals("请求过于频繁", r.getBody().getMessage());
+    }
 
     @Test
     void confirmFrameWithCompactJson() {

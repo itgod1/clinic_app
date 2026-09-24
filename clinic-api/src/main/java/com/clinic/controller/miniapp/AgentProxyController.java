@@ -94,32 +94,39 @@ public class AgentProxyController {
     // ==================================================================
 
     @ApiOperation("发送消息（SSE 流式）")
+    /** chat 失败分支固定产 JSON：客户端带 Accept: text/event-stream 时，
+     *  裸返回 Result 会被 Spring 内容协商盖成 406、丢掉真实错误码；
+     *  显式声明 contentType 可跳过协商（SseEmitter 成功路径不受影响）。 */
+    static <T> ResponseEntity<Result<T>> asJson(Result<T> result) {
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(result);
+    }
+
     @PostMapping("/chat")
     public Object chat(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
-            return Result.unauthorized("用户未登录");
+            return asJson(Result.unauthorized("用户未登录"));
         }
         String key = "patient:" + userId;
         if (!guard.tryAcquire(key)) {
-            return Result.error(429, "请求过于频繁，请一分钟后再试");
+            return asJson(Result.error(429, "请求过于频繁，请一分钟后再试"));
         }
         if (guard.hasActive(key)) {
-            return Result.error(409, "上一条消息还在处理中，请等它完成或先点停止");
+            return asJson(Result.error(409, "上一条消息还在处理中，请等它完成或先点停止"));
         }
         String jwt = extractJwt(request);
         if (jwt.isEmpty()) {
-            return Result.unauthorized("缺少登录凭证");
+            return asJson(Result.unauthorized("缺少登录凭证"));
         }
         String text = body.get("text") instanceof String ? (String) body.get("text") : null;
         if (text == null || text.trim().isEmpty()) {
-            return Result.badRequest("消息内容不能为空");
+            return asJson(Result.badRequest("消息内容不能为空"));
         }
 
         // 每次都走 bootstrap：注册/续期患者 JWT（TTL 10 分钟）+ find-or-create
         String[] ids = bootstrap(userId, jwt);
         if (ids == null) {
-            return Result.error("智能助手暂时不可用，请稍后再试");
+            return asJson(Result.error("智能助手暂时不可用，请稍后再试"));
         }
         String agentId = ids[0];
         String sessionId = ids[1];
