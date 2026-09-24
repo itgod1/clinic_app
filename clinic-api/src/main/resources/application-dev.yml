@@ -60,3 +60,7 @@ langgraph:
 clinic:
   env: dev
   debug: true
+  # 小程序智能助手（AgentScope 主服务）
+  agent:
+    base-url: http://localhost:8000
+    secret: dev-clinic-secret
