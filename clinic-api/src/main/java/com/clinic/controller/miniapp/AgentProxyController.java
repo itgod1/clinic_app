@@ -318,16 +318,24 @@ public class AgentProxyController {
     @ApiOperation("历史消息")
     @GetMapping("/history")
     public Result<Object> history(@RequestParam(required = false) String sessionId,
-                                  @RequestParam(defaultValue = "50") Integer limit) {
+                                  @RequestParam(defaultValue = "50") Integer limit,
+                                  HttpServletRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
             return Result.unauthorized("用户未登录");
         }
         String[] ids = agentCache.get(userId);
-        String sid = sessionId != null ? sessionId : (ids != null ? ids[1] : null);
-        if (sid == null || ids == null) {
+        if (ids == null) {
+            // 8080 重启后 agentCache 清空，而进页面拉历史常是重启后第一个
+            // 请求（还没发过 chat、无人填缓存）——走一次 bootstrap
+            // find-or-create 恢复 [agentId, sessionId]，否则历史恒空
+            // （曾表现为"带着 sessionId 也查不到"）
+            ids = bootstrap(userId, extractJwt(request));
+        }
+        if (ids == null) {
             return Result.success(List.of());
         }
+        String sid = sessionId != null ? sessionId : ids[1];
         // agent_id 为 :8000 messages 接口必填项，缺失会 422 且被下方
         // 兜底吞成空数组（曾表现为"历史恒为空"）
         ResponseEntity<String> resp = callAgent(HttpMethod.GET,
