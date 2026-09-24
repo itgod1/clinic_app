@@ -325,12 +325,18 @@ public class AgentProxyController {
         }
         String[] ids = agentCache.get(userId);
         String sid = sessionId != null ? sessionId : (ids != null ? ids[1] : null);
-        if (sid == null) {
+        if (sid == null || ids == null) {
             return Result.success(List.of());
         }
+        // agent_id 为 :8000 messages 接口必填项，缺失会 422 且被下方
+        // 兜底吞成空数组（曾表现为"历史恒为空"）
         ResponseEntity<String> resp = callAgent(HttpMethod.GET,
-                "/sessions/" + sid + "/messages?limit=" + limit, null, "patient:" + userId);
-        if (resp == null || resp.getBody() == null) {
+                "/sessions/" + sid + "/messages?agent_id=" + ids[0]
+                        + "&limit=" + limit,
+                null, "patient:" + userId);
+        if (resp == null || !resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
+            log.warn("agent history 拉取失败 session={} status={}", sid,
+                    resp != null ? resp.getStatusCode() : "no-response");
             return Result.success(List.of());
         }
         try {
