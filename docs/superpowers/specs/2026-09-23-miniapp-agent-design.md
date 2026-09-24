@@ -45,6 +45,8 @@
 | clinic-agent | `_agent/clinic_agent_service/`（新目录，复用 `_agent/.venv`） | 8001 | 新服务，与通用 agent 服务 :8000 并行互不影响 |
 | Redis | Docker `agentscope-redis` | 6379 | 会话/凭据存储，两个 agent 服务共用 |
 
+> **2026-09-23 修订二（用户裁定：合并进 :8000）**：上表 clinic-agent 独立 :8001 形态取消——用户要求可视化（一个 web UI 看全部）+ 在框架项目上源码二开。诊所能力并入 `examples/agent_service/main.py`（:8000），代码迁移为包 `examples/agent_service/clinic_agent/`；clinic-api 代理目标改 :8000。配套两处源码级/门控改动：(1) `LocalWorkspaceManager` 新增 `default_mcps_filter(user_id)` 构造参数（框架源码二开，防止 default MCP 污染 patient:* 会话）；(2) 工具工厂门控 = `patient:*` 前缀 AND agent 记录 `source=="team"`（防止用户个人 agent 的 worker 拿到诊所工具）。患者与个人数据在共用 Redis 按 user_id 命名空间天然隔离。
+
 ### 2.2 一次对话的数据流
 
 1. 小程序 `POST /api/ai/agent/chat`（`Authorization: Bearer <患者JWT>`，body: `{sessionId?, text}`）。

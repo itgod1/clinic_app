@@ -28,6 +28,17 @@
 - **Task 2 整体取消**：药单查询复用现有 admin 接口。注意 `/admin/prescription/list` 必填 `clinicId` 且**无患者过滤**、`/admin/prescription/{id}` 无归属校验——**Task 4 工具层必须做确定性过滤**：工具内部先调 `/miniapp/patient/list` 取当前用户就诊人 id 集合（顺带取 clinicId），列表按 `patientId ∈ 就诊人集合` 过滤、明细先校验归属，不通过则返回"无权查看"，禁止把他人药单交给 LLM。
 - 其余任务不变。
 
+## 2026-09-23 执行中修订二（用户裁定：合并进 :8000 主服务）
+
+用户澄清引入 AgentScope 的初衷：**可视化 + 在框架项目上源码二次开发**，不接受诊所 agent 作为独立旁路服务。裁定：
+
+- **部署形态**：取消独立 :8001 服务。诊所能力（clinic 路由 / 工具工厂 / 业务专员模板）并入 `examples/agent_service/main.py`（:8000），一个 web UI 看全部。
+- **包位置**：`clinic_agent_service/` → `examples/agent_service/clinic_agent/`（proper package，`__init__.py` + 相对导入）；原 main.py 拆为包内 `router.py`，由 example main `include_router`。
+- **框架源码二开**：`LocalWorkspaceManager` 增加 `default_mcps_filter: Callable[[str], list] | None` 构造参数（按 user_id 过滤注入 workspace 的默认 MCP；None=原行为）。example main 对 `patient:*` 用户返回 `[]`，防止 playwright/amap MCP 污染患者会话。
+- **工厂门控收紧**：`user_id.startswith("patient:")` **AND** agent 记录 `source=="team"`（Redis `agentscope:user:{uid}:agent:{aid}`）才返回业务工具——用户个人 agent 的 team worker 拿不到诊所工具。
+- **下游影响**：Task 7 代理目标 `http://localhost:8000`；Task 9 取消 `start-clinic-agent.bat`（start-all.bat 已覆盖）；所有冒烟/测试脚本端口改 8000；可视化入口 = 现有 web UI（以 patient 用户查看会话的登录机制 Task 9 验证）。
+- Task 3 已提交的 `main.py`/`.gitignore`（4d85061e）按新形态迁移调整。
+
 ## 文件结构总览
 
 ```
@@ -41,13 +52,15 @@ clinic_app/clinic-api/src/main/java/com/clinic/
 ├─ mapper/PrescriptionMapper.java(+xml)             # 修改：患者归属查询
 └─ resources/db/migration/V{N}__reg_client_request_id.sql
 
-_agent/clinic_agent_service/
-├─ main.py            # create_app + /clinic/session-token 路由 + 8001
-├─ token_registry.py  # JWT 注册表(Redis TTL)
-├─ tools.py           # 12 工具 + LoopGuard 中间件
-├─ prompts.py         # 总/业务 agent 提示词
-├─ factory.py         # clinic_tool_factory(门控)
-└─ tests/test_tools.py
+_agent/examples/agent_service/
+├─ main.py            # 修改：挂 clinic_agent 路由/工厂/模板 + MCP 过滤
+└─ clinic_agent/      # 诊所包（原 clinic_agent_service/ 迁移）
+   ├─ router.py       # /clinic/session-token 路由
+   ├─ token_registry.py  # JWT 注册表(Redis TTL)
+   ├─ tools.py           # 12 工具 + 循环防护
+   ├─ prompts.py         # 总/业务 agent 提示词
+   ├─ factory.py         # clinic_tool_factory(门控)
+   └─ tests/test_tools.py
 
 clinic_app/clinic-miniapp/src/
 ├─ api/agent.js       # SSE 客户端
