@@ -71,6 +71,25 @@ public class MiniappPatientServiceImpl implements MiniappPatientService {
             throw new BusinessException("该手机号已添加为就诊人");
         }
 
+        // bind-first：后台在本诊所建过同手机号+同姓名的未绑定档案时，
+        // 直接认领（补 user_id）而不是再建一条，避免同人双档案把
+        // 挂号/药单历史拆散。姓名+手机号双匹配，防止家人共用手机号错绑。
+        LambdaQueryWrapper<Patient> unboundQuery = new LambdaQueryWrapper<>();
+        unboundQuery.isNull(Patient::getUserId)
+                .eq(Patient::getClinicId, patient.getClinicId())
+                .eq(Patient::getPhone, patient.getPhone())
+                .eq(Patient::getPatientName, patient.getPatientName())
+                .eq(Patient::getDeleted, 0)
+                .orderByAsc(Patient::getId)
+                .last("LIMIT 1");
+        Patient unbound = patientMapper.selectOne(unboundQuery);
+        if (unbound != null) {
+            unbound.setUserId(userId);
+            unbound.setUpdatedAt(LocalDateTime.now());
+            patientMapper.updateById(unbound);
+            return;
+        }
+
         // 设置用户ID
         patient.setUserId(userId);
         patient.setPatientCode(generatePatientCode());
