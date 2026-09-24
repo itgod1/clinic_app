@@ -480,6 +480,11 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new BusinessException("无权为该就诊人挂号");
         }
 
+        // 诊所归属：排班校验按 clinicId 查，调用方（如 agent）未带时从就诊人档案补齐
+        if (registration.getClinicId() == null && patient.getClinicId() != null) {
+            registration.setClinicId(patient.getClinicId());
+        }
+
         registration.setClientRequestId(clientRequestId);
         validateRegistration(registration);
         create(registration);
