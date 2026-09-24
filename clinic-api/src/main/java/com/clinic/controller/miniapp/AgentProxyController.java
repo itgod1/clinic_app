@@ -40,7 +40,9 @@ import java.util.concurrent.TimeUnit;
  * 恢复 run，事件继续走同一条 SSE 连接。
  *
  * 护栏（AgentGuard）：每用户 6 次/分钟；同用户同时只允许一个活跃 run；
- * 120s watchdog 超时自动调 :8000 interrupt 并关闭 SSE。
+ * watchdog 超时自动调 :8000 interrupt 并关闭 SSE；HITL 确认等待期
+ * （REQUIRE_USER_CONFIRM 已透传、患者尚未点确认）静默与绝对上限放宽
+ * CONFIRM_GRACE_MS，避免"事办了、回执丢"。
  */
 @Slf4j
 @Api(tags = "小程序智能助手代理")
@@ -59,6 +61,10 @@ public class AgentProxyController {
     /** 流静默上限：leader 可能先答"稍等"就结束本轮(REPLY_END)，worker 结果作为后续唤醒 run 到达；
      *  REPLY_END 后保持订阅，静默超过该阈值才收尾（interrupt 幂等，无活跃 run 时为空操作） */
     private static final long QUIET_MS = 120_000;
+    /** HITL 确认等待期：agent 冻结等人点确认卡，人比机器慢。静默与绝对
+     *  上限在此期间同步放宽，否则患者犹豫超过 120s 流被收尾、确认后
+     *  虽照常执行但最终答复无法再透传（事办了、回执丢）。 */
+    private static final long CONFIRM_GRACE_MS = 8 * 60_000;
 
     private final AgentGuard guard = new AgentGuard();
     private final ObjectMapper om = new ObjectMapper();
@@ -139,16 +145,20 @@ public class AgentProxyController {
             }
         };
         String interruptPath = "/sessions/" + sessionId + "/interrupt?agent_id=" + agentId;
-        // 绝对超时：watchdog 硬停（interrupt + 前端报错帧）
-        timers.add(watchdog.schedule(() -> {
-            if (done.get()) {
+        // 绝对超时：watchdog 硬停（interrupt + 前端报错帧）。改为周期检查
+        // 可延展的 deadline：HITL 确认等待期放宽（见 relayStream 内确认帧处理）
+        java.util.concurrent.atomic.AtomicLong hardDeadline =
+                new java.util.concurrent.atomic.AtomicLong(
+                        System.currentTimeMillis() + WATCHDOG_MS);
+        timers.add(watchdog.scheduleAtFixedRate(() -> {
+            if (done.get() || System.currentTimeMillis() <= hardDeadline.get()) {
                 return;
             }
             log.warn("agent watchdog 超时，自动停止 session={}", sessionId);
             callAgent(HttpMethod.POST, interruptPath, null, key);
             send(emitter, "{\"type\":\"PROXY_ERROR\",\"message\":\"回答超时，已自动停止\"}");
             cleanup.run();
-        }, WATCHDOG_MS, TimeUnit.MILLISECONDS));
+        }, 10, 10, TimeUnit.SECONDS));
         // 静默超时：流上 QUIET_MS 无新帧即收尾（leader 可能已答完；若有残留 run，interrupt 幂等）
         timers.add(watchdog.scheduleAtFixedRate(() -> {
             if (!done.get() && System.currentTimeMillis() - lastFrame[0] > QUIET_MS) {
@@ -174,7 +184,7 @@ public class AgentProxyController {
                 send(emitter, "{\"type\":\"PROXY_SESSION\",\"session_id\":\""
                         + sessionId + "\",\"agent_id\":\"" + agentId + "\"}");
                 // 2) 打开 SSE 流并逐行透传（REPLY_END 不收尾，交给静默计时器）
-                relayStream(agentId, sessionId, emitter, key, lastFrame, cleanup);
+                relayStream(agentId, sessionId, emitter, key, lastFrame, hardDeadline, cleanup);
             } catch (Exception e) {
                 log.error("agent chat 代理失败 userId={}", userId, e);
                 send(emitter, "{\"type\":\"PROXY_ERROR\",\"message\":\"连接中断，请重试\"}");
@@ -188,7 +198,9 @@ public class AgentProxyController {
 
     /** 读 :8000 leader 会话流，data: 行透传；流关闭或客户端断开即收尾 */
     private void relayStream(String agentId, String sessionId, SseEmitter emitter,
-                             String key, long[] lastFrame, Runnable cleanup) {
+                             String key, long[] lastFrame,
+                             java.util.concurrent.atomic.AtomicLong hardDeadline,
+                             Runnable cleanup) {
         HttpHeaders headers = agentHeaders(key);
         streamingRestTemplate.execute(
                 agentBaseUrl + "/sessions/" + sessionId + "/stream?agent_id=" + agentId,
@@ -207,6 +219,15 @@ public class AgentProxyController {
                                 continue;
                             }
                             lastFrame[0] = System.currentTimeMillis();
+                            if (isConfirmFrame(payload)) {
+                                // HITL 卡片已透传：agent 冻结等人决定，静默与
+                                // 绝对上限同步放宽；确认后帧恢复流动，
+                                // 静默判定自动回到正常 120s 节奏
+                                lastFrame[0] = System.currentTimeMillis() + CONFIRM_GRACE_MS;
+                                hardDeadline.set(System.currentTimeMillis()
+                                        + WATCHDOG_MS + CONFIRM_GRACE_MS);
+                                log.info("HITL 确认等待，收尾阈值放宽 session={}", sessionId);
+                            }
                             if (!send(emitter, payload)) {
                                 // 客户端已断开
                                 cleanup.run();
@@ -218,6 +239,12 @@ public class AgentProxyController {
                     cleanup.run();
                     return null;
                 });
+    }
+
+    /** HITL 确认帧识别（对透传 payload 原文）：命中则进入确认等待期，
+     *  收尾阈值放宽（见 chat 内计时器与 relayStream）。包可见以便单测。 */
+    static boolean isConfirmFrame(String payload) {
+        return payload != null && payload.contains("\"REQUIRE_USER_CONFIRM\"");
     }
 
     // ==================================================================
