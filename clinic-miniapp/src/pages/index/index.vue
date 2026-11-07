@@ -172,7 +172,7 @@ const quickActions = ref([
   { icon: '💳', label: '门诊缴费', bgColor: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)', needLogin: true, needClinic: true, url: '/pages/payment/outpatient' },
   { icon: '📄', label: '就诊记录', bgColor: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', needLogin: true, needClinic: true, url: '/pages/medical/list' },
   { icon: '📍', label: '来院导航', bgColor: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%)', needLogin: false, needClinic: true, url: '' },
-  { icon: '🤖', label: 'AI问诊', bgColor: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)', needLogin: false, needClinic: false, url: '/pages/ai/consult', type: 'consult' },
+  { icon: '🤖', label: '智能助手', bgColor: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)', needLogin: true, needClinic: false, url: '/pages/ai/consult' },
   { icon: '📋', label: 'AI回访', bgColor: 'linear-gradient(135deg, #e8f5f0 0%, #d4edda 100%)', needLogin: true, needClinic: false, url: '/pages/ai/return-visit', type: 'return-visit' },
   { icon: '💬', label: '联系客服', bgColor: 'linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%)', needLogin: false, needClinic: false, url: '' },
   { icon: '🏷️', label: '优惠活动', bgColor: 'linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)', needLogin: false, needClinic: false, url: '' },

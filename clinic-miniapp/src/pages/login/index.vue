@@ -32,8 +32,8 @@
           class="wechat-btn test-btn"
           @click="handleDevLogin"
         >
-          <text class="icon">�</text>
-          <text>模拟登录（开发测试）</text>
+          <text class="icon">🧪</text>
+          <text>一键登录测试患者张三（开发）</text>
         </button>
         
         <!-- 账号密码登录（可选） -->
@@ -48,13 +48,13 @@
         </button>
       </view>
       
-      <view class="agreement">
-        <checkbox :checked="agreed" @click="agreed = !agreed" color="#1890ff" />
+      <view class="agreement" @click="agreed = !agreed">
+        <checkbox :checked="agreed" color="#1890ff" />
         <text class="text">
           我已阅读并同意
-          <text class="link" @click="openAgreement">《用户协议》</text>
+          <text class="link" @click.stop="openAgreement">《用户协议》</text>
           和
-          <text class="link" @click="openPrivacy">《隐私政策》</text>
+          <text class="link" @click.stop="openPrivacy">《隐私政策》</text>
         </text>
       </view>
     </view>
@@ -113,36 +113,38 @@ onMounted(() => {
   isDevTools.value = systemInfo.platform === 'devtools'
 })
 
-// 开发工具模拟登录
+// 开发工具一键测试登录：走后端 dev 后门（微信 code 交换失败时回落为
+// 确定性 mock openid = "mock_openid_" + code 前 10 位，见
+// AuthServiceImpl.miniappLogin），固定 code "apifox-e2e" 稳定登入
+// 测试患者张三（miniapp_user 35，名下有档案/挂号/药单/病历测试数据）
 const handleDevLogin = async () => {
+  console.log('[dev-login] 按钮 tapped，agreed =', agreed.value)
   if (!agreed.value) {
-    uni.showToast({ title: '请先同意用户协议', icon: 'none' })
+    // toast 一闪即逝容易被错过（此前"点击没反应"的实际原因），改弹窗
+    uni.showModal({
+      title: '请先同意用户协议',
+      content: '勾选页面底部的《用户协议》复选框后再登录（整行文字都可以点）',
+      showCancel: false
+    })
     return
   }
 
-  uni.showLoading({ title: '模拟登录中...' })
+  uni.showLoading({ title: '登录中...' })
 
   try {
-    // 模拟登录数据
-    const mockUserInfo = {
-      id: 1,
-      username: 'test_user',
-      realName: '测试用户',
-      phone: '13800138000',
-      avatar: ''
-    }
+    const res = await miniappLogin({ code: 'apifox-e2e' })
 
-    // 保存登录信息
-    uni.setStorageSync('token', 'mock_token_' + Date.now())
-    uni.setStorageSync('userInfo', JSON.stringify(mockUserInfo))
+    // 保存真实登录态（与微信登录同款结构）
+    uni.setStorageSync('token', res.data.token)
+    uni.setStorageSync('userInfo', JSON.stringify(res.data.userInfo))
 
-    uni.showToast({ title: '模拟登录成功', icon: 'success' })
+    uni.showToast({ title: '登录成功', icon: 'success' })
 
     setTimeout(() => {
       uni.switchTab({ url: '/pages/index/index' })
-    }, 1500)
+    }, 800)
   } catch (error) {
-    uni.showToast({ title: '登录失败', icon: 'none' })
+    uni.showToast({ title: error.message || '登录失败', icon: 'none' })
   } finally {
     uni.hideLoading()
   }

@@ -8,7 +8,9 @@
 clinic_app/
 ├── clinic-admin/      # 管理后台前端 (Vue 3)
 ├── clinic-api/        # 后端 API (Spring Boot)
-└── clinic-miniapp/    # 患者端小程序 (uni-app)
+├── clinic-miniapp/    # 患者端小程序 (uni-app)
+├── _agent/            # AgentScope 源码及诊所智能助手
+└── AI_visitrevivw_api/ # AI 回访服务源码
 ```
 
 ## 功能特性

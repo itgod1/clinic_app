@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 诊所管理控制器
@@ -87,13 +86,9 @@ public class ClinicController {
     }
 
     @ApiOperation("删除诊所")
-    @OperationLog(module = "租户管理-诊所管理", type = OperationType.DELETE, desc = "删除诊所")
+    @OperationLog(module = "租户管理-诊所管理", type = OperationType.DELETE, desc = "删除诊所信息")
     @PostMapping("/delete")
-    public Result<String> delete(@RequestBody Map<String, Long> params) {
-        Long id = params.get("id");
-        if (id == null) {
-            return Result.error(400, "诊所ID不能为空");
-        }
+    public Result<String> delete(@RequestParam @NotNull(message = "诊所ID不能为空") Long id) {
         clinicService.delete(id);
         return Result.success("删除成功");
     }

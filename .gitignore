@@ -1,0 +1,43 @@
+# Dependencies and virtual environments
+node_modules/
+.venv/
+venv/
+__pypackages__/
+*.egg-info/
+
+# Build output and caches
+target/
+dist/
+build/
+.vite/
+.cache/
+__pycache__/
+*.py[cod]
+*.class
+*.tsbuildinfo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage*
+coverage/
+htmlcov/
+
+# Runtime output
+logs/
+*.log
+*.log.*
+*.pid
+workspaces/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+.idea/
+.vscode/
+.trae/
+.superpowers/
+project.private.config.json
+.DS_Store
+Thumbs.db

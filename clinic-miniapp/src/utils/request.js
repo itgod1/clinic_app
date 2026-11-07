@@ -1,6 +1,6 @@
 // 基础 URL 配置
 // 开发环境使用 localhost，真机调试需要修改为电脑局域网 IP
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://10.13.34.148:8080/api'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
 
 // 不需要clinicId的白名单
 const NO_CLINIC_ID_URLS = [

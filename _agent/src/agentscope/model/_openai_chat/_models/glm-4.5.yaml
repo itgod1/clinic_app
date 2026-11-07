@@ -1,0 +1,12 @@
+name: glm-4.5
+label: GLM-4.5
+status: active
+
+input_types:
+  - text/plain
+
+output_types:
+  - text/plain
+
+context_size: 131072
+output_size: 32768

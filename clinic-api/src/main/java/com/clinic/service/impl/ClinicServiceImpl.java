@@ -3,6 +3,7 @@ package com.clinic.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.clinic.common.exception.BusinessException;
 import com.clinic.entity.Clinic;
 import com.clinic.entity.SysUser;
 import com.clinic.entity.SysUserRole;
@@ -63,7 +64,7 @@ public class ClinicServiceImpl extends ServiceImpl<ClinicMapper, Clinic> impleme
     public Clinic create(Clinic clinic) {
         // 检查编码是否已存在
         if (checkCodeExists(clinic.getClinicCode())) {
-            throw new RuntimeException("诊所编码已存在");
+            throw new BusinessException("诊所编码已存在");
         }
 
         // 设置默认值
@@ -134,13 +135,13 @@ public class ClinicServiceImpl extends ServiceImpl<ClinicMapper, Clinic> impleme
     public Clinic update(Clinic clinic) {
         Clinic existingClinic = clinicMapper.selectById(clinic.getId());
         if (existingClinic == null) {
-            throw new RuntimeException("诊所不存在");
+            throw new BusinessException("诊所不存在");
         }
 
         // 如果修改了编码，检查是否与其他诊所冲突
         if (!existingClinic.getClinicCode().equals(clinic.getClinicCode())) {
             if (checkCodeExists(clinic.getClinicCode())) {
-                throw new RuntimeException("诊所编码已存在");
+                throw new BusinessException("诊所编码已存在");
             }
         }
 
@@ -155,7 +156,7 @@ public class ClinicServiceImpl extends ServiceImpl<ClinicMapper, Clinic> impleme
     public void delete(Long clinicId) {
         Clinic clinic = clinicMapper.selectById(clinicId);
         if (clinic == null) {
-            throw new RuntimeException("诊所不存在");
+            throw new BusinessException("诊所不存在");
         }
 
         // MyBatis-Plus @TableLogic 会自动处理为逻辑删除

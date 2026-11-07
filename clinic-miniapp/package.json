@@ -4,8 +4,8 @@
   "description": "诊所预约挂号小程序",
   "main": "main.js",
   "scripts": {
-    "dev:mp-weixin": "uni",
-    "build:mp-weixin": "uni build",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin",
     "dev:h5": "uni",
     "build:h5": "uni build"
   },

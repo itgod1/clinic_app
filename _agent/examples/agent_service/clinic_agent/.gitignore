@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+clinic_agent_dev.log
+workspaces/
+tests/__pycache__/
+.pytest_cache/

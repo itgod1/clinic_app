@@ -45,7 +45,7 @@ export const createClinic = (data: Partial<ClinicInfo>) => post('/admin/clinic/c
 export const updateClinic = (data: Partial<ClinicInfo>) => post('/admin/clinic/update', data)
 
 // 删除诊所
-export const deleteClinic = (id: number) => post('/admin/clinic/delete', { id })
+export const deleteClinic = (id: number) => post('/admin/clinic/delete', null, { params: { id } })
 
 // 检查诊所编码是否存在
 export const checkClinicCode = (clinicCode: string) => get('/admin/clinic/checkCode', { clinicCode })
